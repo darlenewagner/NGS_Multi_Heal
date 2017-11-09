@@ -1,0 +1,55 @@
+TRIMR1=5
+TRIMR2=15
+// This pipeline allows different lengths, TRIMR1 and TRIMR2, to be trimmed
+// from forward (R1) and reverse (R2) reads in gzipped fastq files
+
+gunzipPair = {
+   transform('.fastq.gz') to('.fastq'){
+     exec "gunzip -c $input > $output"
+       }
+   }
+
+fastxR1 = {
+   from("*R1_001.fastq"){
+     filter("fastx"){
+       exec "fastx_trimmer -Q33 -t $TRIMR1 -i $input -o $output; rm -v $input"
+       }
+   }
+}
+
+fastxR2 = {
+   from("*R2_001.fastq"){
+     filter("fastx"){
+       exec "fastx_trimmer -Q33 -t $TRIMR2 -i $input -o $output; rm -v $input"
+     }
+  }
+}
+
+addTrim1 = {
+           transform('.fastx.fastq.gz') to ('.fastx'){
+                 exec "cp -v $input $output.$TRIMR1.'fastq.gz'"
+               }
+             succeed "Number of bases trimmed added to forward reads filename"
+             forward $input
+            }
+
+addTrim2 = {
+           transform('.fastx.fastq.gz') to ('.fastx'){
+              exec "cp -v $input $output.$TRIMR2.'fastq.gz'"
+             }
+            succeed "Number of bases trimmed added to reverse reads filename"
+            forward $input
+           }
+
+gzipTrim = {
+   transform('.fastq') to('.fastq.gz'){
+      exec "gzip -c $input > $output; rm -v $input"
+    }
+ }
+
+
+Bpipe.run {
+ "_R%_" * [gunzipPair] + [fastxR1 + gzipTrim + addTrim1, fastxR2 + gzipTrim + addTrim2] 
+}
+
+
