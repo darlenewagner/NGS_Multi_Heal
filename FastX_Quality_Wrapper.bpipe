@@ -1,16 +1,20 @@
 // This pipeline creates a tab-delimited file of base-pair position
 // quality statistics averaged across all reads in a fastq file.
 // Average quality scores of Forward (R1) and Reverse (R2) are also output 
+// To change location of output, change global variable "WORKINGDIR"
+// Requirements: fastx-toolkit v0.0.13 or higher
+
+WORKINGDIR="NGS_Multi_Heal/Quality_Stats_Output"
 
 gunzipPair = {
-   output.dir="NGS_Multi_Heal"
+   output.dir="$WORKINGDIR"
    transform('.fastq.gz')to('.fastq'){
      exec "gunzip -c $input > $output"
        }
    }
 
 fastxQual = {
-   output.dir="NGS_Multi_Heal"
+   output.dir="$WORKINGDIR"
    transform(".fastq") to (".quality.tsv") {
      exec """
             fastx_quality_stats -Q33 -i $input -o $output; rm -v $input
@@ -19,17 +23,22 @@ fastxQual = {
 }
 
 findAvgQual = {
-   output.dir="NGS_Multi_Heal"
+   output.dir="$WORKINGDIR"
     transform(".quality.tsv") to (".meanQual.txt") {
       exec """
             cat $input | perl -ne 'print if not eof()' | perl -lne '@F=split(/\\t/, \$_); \$s+=\$F[5]; END{print \$s/\$.};' > $output;
-            echo -ne $output, "\\t";  cat $output| perl -p -i -e 's/(\\d+\\.\\d+)/sprintf "%.2f", \$1/eg'
+            echo -ne $output, "\\t";  cat $output | perl -p -i -e 's/(\\d+\\.\\d+)/sprintf "%.2f", \$1/eg'
            """ 
      }
   }
 
+finish = {
+    output.dir="$WORKINGDIR"
+    succeed "Completed fastx_quality_stats! Results in $output.dir"     
+  }
+
 Bpipe.run {
- "_R%_" * [gunzipPair + fastxQual + findAvgQual]
+ "_R%_" * [gunzipPair + fastxQual + findAvgQual] + finish
 }
 
 

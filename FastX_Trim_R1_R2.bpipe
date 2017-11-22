@@ -1,15 +1,21 @@
+// This pipeline allows different lengths in global variables, TRIMR1 and TRIMR2,
+// to be trimmed from forward (R1) and reverse (R2) reads in gzipped fastq files
+// To change location of output, change global variable "WORKINGDIR"
+// Requirements: fastx-toolkit v0.0.13 or higher
+
 TRIMR1=5
-TRIMR2=15
-// This pipeline allows different lengths, TRIMR1 and TRIMR2, to be trimmed
-// from forward (R1) and reverse (R2) reads in gzipped fastq files
+TRIMR2=10
+WORKINGDIR="NGS_Multi_Heal/FastX_Output"
 
 gunzipPair = {
+   output.dir = "$WORKINGDIR"
    transform('.fastq.gz') to('.fastq'){
      exec "gunzip -c $input > $output"
        }
    }
 
 fastxR1 = {
+   output.dir = "$WORKINGDIR"
    from("*R1_001.fastq"){
      filter("fastx"){
        exec "fastx_trimmer -Q33 -t $TRIMR1 -i $input -o $output; rm -v $input"
@@ -18,6 +24,7 @@ fastxR1 = {
 }
 
 fastxR2 = {
+   output.dir = "$WORKINGDIR"
    from("*R2_001.fastq"){
      filter("fastx"){
        exec "fastx_trimmer -Q33 -t $TRIMR2 -i $input -o $output; rm -v $input"
@@ -26,22 +33,25 @@ fastxR2 = {
 }
 
 addTrim1 = {
+           output.dir = "$WORKINGDIR"
            transform('.fastx.fastq.gz') to ('.fastx'){
-                 exec "cp -v $input $output.$TRIMR1.'fastq.gz'"
+                 exec "mv -v $input $output.$TRIMR1.'fastq.gz'"
                }
-             succeed "Number of bases trimmed added to forward reads filename"
+             succeed "Forward reads file trimmed $TRIMR1 bases and saved to $output.dir"
              forward $input
             }
 
 addTrim2 = {
+           output.dir = "$WORKINGDIR"
            transform('.fastx.fastq.gz') to ('.fastx'){
-              exec "cp -v $input $output.$TRIMR2.'fastq.gz'"
-             }
-            succeed "Number of bases trimmed added to reverse reads filename"
+              exec "mv -v $input $output.$TRIMR2.'fastq.gz'"
+              }
+            succeed "Reverse reads file trimmed $TRIMR2 bases and saved to $output.dir"
             forward $input
            }
 
 gzipTrim = {
+   output.dir = "$WORKINGDIR"
    transform('.fastq') to('.fastq.gz'){
       exec "gzip -c $input > $output; rm -v $input"
     }

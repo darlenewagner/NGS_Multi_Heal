@@ -1,0 +1,36 @@
+// This pipeline invokes prinseq-lite to remove N-containing reads
+// from forward (R1) and reverse (R2) reads in gzipped fastq files
+// To change location of output, change global variable "WORKINGDIR"
+// Requirements: perl v5.22 or higher, not multithreaded
+//               prinseq v0.20.3
+
+WORKINGDIR="NGS_Multi_Heal/Prinseq_Output"
+
+gunzipPair = {
+   output.dir = "$WORKINGDIR"
+   transform('.fastq.gz') to('.fastq'){
+     exec "gunzip -c $input > $output"
+       }
+   }
+
+noN = {
+   
+      bad="fail_"
+      output.dir = "$WORKINGDIR"         
+   
+      transform("R1", "R2") {
+         exec """
+                prinseq-lite -fastq $input1 -fastq2 $input2 -out_good $output.prefix -out_bad $output.$bad -ns_max_n 0; rm -v $input1; rm -v $input2;
+                gzip $output.prefix'_1.fastq'; gzip $output.prefix'_2.fastq'; rm -v $output.prefix'_1_singletons.fastq'; rm -v $output.prefix'_2_singletons.fastq'  
+              """
+              }
+         succeed "Corrected reads saved to $output.dir"
+      }    
+     
+
+
+Bpipe.run {
+ "_R%_" * [gunzipPair] + noN
+}
+
+
