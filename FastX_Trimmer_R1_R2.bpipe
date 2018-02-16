@@ -1,9 +1,9 @@
 // This pipeline allows different lengths in global variables, TRIMR1 and TRIMR2,
 // to be trimmed from forward (R1) and reverse (R2) reads in gzipped fastq files
-// To change location of output, change global variable "WORKINGDIR"
+// To change location of output (not recommended), change global variable "WORKINGDIR"
 // Requirements: fastx-toolkit v0.0.13 or higher
 
-WORKINGDIR="NGS_Multi_Heal"
+WORKINGDIR="/scicomp/home/ydn3/NGS_Multi_Heal"
 TRIMR1=args[0]
 TRIMR2=args[1]
 
