@@ -17,5 +17,11 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * CG-Pipeline download: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
 * prinseq download: [sourceforge.net/projects/prinseq](https://sourceforge.net/projects/prinseq/files/standalone/)
 
+## Examples
+#### Parse .bam file for coverage of reads to reference - output to screen as .csv:
+'< python BamCoveragePrint.py NGSreads_to_ref.sorted.bam --format csv >'
+#### Percentage of reads with ambiguous nucleotides (N) in an unzipped .fastq file:
+'< python countReadsWithAmbig.py NGSreads_R1_001.fastq --format percent >'
 
+## Coming Soon
 
