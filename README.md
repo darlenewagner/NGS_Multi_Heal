@@ -14,6 +14,8 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 ## Sources
 * Bpipe download and documentation: [bpipe.org](http://docs.bpipe.org)
 * FASTX-Toolkit download and documentation: [hannonlab.cshl.edu](http://hannonlab.cshl.edu/fastx_toolkit)
-* CG-Pipeline download [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
+* CG-Pipeline download: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
+* prinseq download: [sourceforge.net/projects/prinseq](https://sourceforge.net/projects/prinseq/files/standalone/)
+
 
 
