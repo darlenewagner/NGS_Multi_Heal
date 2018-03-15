@@ -18,9 +18,9 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * prinseq download: [sourceforge.net/projects/prinseq](https://sourceforge.net/projects/prinseq/files/standalone/)
 
 ## Examples
-* **Parse .bam file for coverage of reads to reference - output as .csv:**
+##### Parse .bam file for coverage of reads to reference - output as .csv to terminal:
 ```python BamCoveragePrint.py NGSreads_to_ref.sorted.bam --format csv```
-* **Find percentage of reads with ambiguous nucleotides (N):**
+##### Find percentage of reads with ambiguous nucleotides (N):
 ```python countReadsWithAmbig.py NGSreads_R1_001.fastq --format percent```
 
 ## Coming Soon
