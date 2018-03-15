@@ -12,7 +12,8 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * CG-Pipeline Perl scripts
 
 ## Sources
-* Bpipe download and documentation: [link]http://docs.bpipe.org
-* FASTX-Toolkit download and documentation: [link]http://hannonlab.cshl.edu/fastx_toolkit
-* CG-Pipeline download [link]https://github.com/lskatz/CG-Pipeline
+* Bpipe download and documentation: [bpipe.org](http://docs.bpipe.org)
+* FASTX-Toolkit download and documentation: [hannonlab.cshl.edu](http://hannonlab.cshl.edu/fastx_toolkit)
+* CG-Pipeline download [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
+
 
