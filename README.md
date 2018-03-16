@@ -6,16 +6,10 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * Perl 5.X.X or higher
 * Python 3.X.X or higher
 * Java 1.7.xxxx or higher
-* Bpipe 0.9.8.7 or higher
-* FASTX-Toolkit-0.0.13 or higher
-* prinseq 1.20.X or higher
-* CG-Pipeline Perl scripts
-
-## Sources
-* Bpipe download and documentation: [bpipe.org](http://docs.bpipe.org)
-* FASTX-Toolkit download and documentation: [hannonlab.cshl.edu](http://hannonlab.cshl.edu/fastx_toolkit)
-* CG-Pipeline download: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
-* prinseq download: [sourceforge.net/projects/prinseq](https://sourceforge.net/projects/prinseq/files/standalone/)
+* Bpipe 0.9.8.7 or higher:  [bpipe.org](http://docs.bpipe.org)
+* FASTX-Toolkit-0.0.13 or higher: [hannonlab.cshl.edu](http://hannonlab.cshl.edu/fastx_toolkit)
+* prinseq 1.20.X or higher: [sourceforge.net/projects/prinseq](https://sourceforge.net/projects/prinseq/files/standalone/)
+* CG-Pipeline Perl scripts: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
 
 ## Examples
 ##### Parse .bam file for coverage of reads to reference - output as .csv to terminal:
