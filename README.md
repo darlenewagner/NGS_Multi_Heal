@@ -12,10 +12,14 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * CG-Pipeline Perl: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
 
 ## Examples
+##### Trim 3' ends of forward and reverse reads by XX and YY base pair positions, respectively:
+``` python fastxTrimmer_R1andR2.py NGSreads_R1_001.fastq NGSreads_R2_001.fastq --trimF XX --trimR XX -outDir trimmedReads/ ```
 ##### Parse .bam file for coverage of reads to reference - output as .csv to terminal:
-```python BamCoveragePrint.py NGSreads_to_ref.sorted.bam --format csv```
+``` python BamCoveragePrint.py NGSreads_to_ref.sorted.bam --format csv ```
 ##### Find percentage of reads with ambiguous nucleotides (N):
-```python countReadsWithAmbig.py NGSreads_R1_001.fastq --format percent```
+``` python countReadsWithAmbig.py NGSreads_R1_001.fastq --format percent ```
 
 ## Coming Soon
-
+* Python wrapper for prinseq-lite
+* Python wrapper for SPAdes BayesHammer
+* Python scripts for managing DNA .fasta or .txt
