@@ -28,7 +28,7 @@ logger.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser(description="trimming forward reads by -t1 and reverse reads by -t2", usage="python fastxTrimmer_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq -t1 X -t2 Y --outDir outputPath")
 
-parser.add_argument('--trimF', '-t1', required=True, type=int, choices=range(0,21))
+[parser.add_argument('--trimF', '-t1', required=True, type=int, choices=range(0,21))
 parser.add_argument('--trimR', '-t2', required=True, type=int, choices=range(0,21))
 
 parser.add_argument('forward', type=argparse.FileType('r'))
@@ -38,7 +38,7 @@ parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='
 
 args = parser.parse_args()
 
-## output folder
+]## output folder
 
 outFolder = args.outDir
 
@@ -48,7 +48,7 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 #add formatter to ch
 ch.setFormatter(formatter)
 #add ch to logger
-logger.addHandler(ch)
+[logger.addHandler(ch)
 
 logger.info("Parameters loaded.")
 
@@ -73,7 +73,7 @@ def getIsolateStr(filePathString):
 	if(re.search(pattern='_R1_001', string=isolateString[0])):
 		isolateString = re.sub(r'R1_001', 'fastxTrim_fastq', isolateString[0])
 	else:
-		isolateString = isolateString + '_fastxTrim_fastq'
+		isolateString = isolateString[0] + '_fastxTrim_fastq'
 	return isolateString
 
 ## Simple output file renaming
