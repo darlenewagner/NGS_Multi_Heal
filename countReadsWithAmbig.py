@@ -4,6 +4,7 @@ import sys
 import os.path
 import argparse
 import re
+import logging
 import warnings
 
 ## A command-line script for counting reads containing ambiguous nucleotides
@@ -14,30 +15,50 @@ import warnings
 
 ## Function: A closure for file extension checking
 
-def ext_check(expected_ext, openner):
+def ext_check(expected_ext1, expected_ext2, openner):
 	def extension(filename):
-		if not filename.lower().endswith(expected_ext):
+		if not (filename.lower().endswith(expected_ext1) or filename.lower().endswith(expected_ext2)):
 			raise ValueError()
 		return openner(filename)
 	return extension
 
-parser = argparse.ArgumentParser(description='This script uses prinseq-lite.pl to find count or proportion of reads with N', usage="countReadsWithAmbig.py filepath/reads.fastq --format [simp(le)?/integer/percent/verbose(default)]")
+parser = argparse.ArgumentParser(description='Find count or proportion of reads with N', usage="countReadsWithAmbig.py filepath/reads.fastq --format [simp(le)?/integer/percent/verbose(default)]")
 
-parser.add_argument("fastq", type=ext_check('.fastq', argparse.FileType('r')))
+parser.add_argument("fastq", type=ext_check('.fastq', 'fastq.gz', argparse.FileType('r')))
 
 parser.add_argument("--format", default='verbose', type = lambda s : s.lower(), choices=['simple','integer','percent','verbose','s','simp','i','p','v'])
 
 args = parser.parse_args()
 
+logger = logging.getLogger("countReadsWithAmbig.py")
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+
 fastqFilePath = args.fastq.name
 
-readCount = os.popen("prinseq-lite.pl -stats_info -fastq {} | tail -1 | perl -ne '$_=~s/stats_info\s+reads\s+//g; print;'".format(fastqFilePath)).read()
+readCount = None
+ambigCount = None
+gunzFastqFilePath = None
+
+if(re.search(r'\.fastq$', fastqFilePath, flags=re.IGNORECASE)):
+	readCount = os.popen("prinseq-lite.pl -stats_info -fastq {} | tail -1 | perl -ne '$_=~s/stats_info\s+reads\s+//g; print;'".format(fastqFilePath)).read()
+	ambigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(fastqFilePath)).read()
+elif(re.search(r'fastq\.gz$', fastqFilePath, flags=re.IGNORECASE)):
+	os.system("gunzip -c {} > {}".format(fastqFilePath, gunzFastqFilePath))	
+	readCount = os.popen("prinseq-lite.pl -stats_info -fastq {} | tail -1 | perl -ne '$_=~s/stats_info\s+reads\s+//g; print;'".format(gunzFastqFilePath)).read()
+	ambigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(gunzFastqFilePath)).read()
+	os.system("rm {}".format(gunzFastqFilePath))
+else:
+	logger.warn("Input file unrecognized format!")
+	sys.exit(1)	
+
 
 intReadCount = int(float(readCount))
-
-#print(intReadCount)
-
-ambigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(fastqFilePath)).read()
 
 if(ambigCount):
 	intAmbigCount = int(float(ambigCount.rstrip()))
