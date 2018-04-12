@@ -23,12 +23,12 @@ def readable_dir(prospective_dir):
 	else:
 		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
-## for checking that --min-length is between 40 and 145, inclusive
+## for checking that --min-length is between 35 and 145, inclusive
 def bandwidth_type(x):
 	xx = int(x)
-	if( xx < 40 ):
-		raise argparse.ArgumentTypeError("Minimum min-length should be 40")
-	elif( xx > 145 ):
+	if( xx < 34 ):
+		raise argparse.ArgumentTypeError("Minimum min-length should be 35")
+	elif( xx > 144 ):
 		raise argparse.ArgumentTypeError("Maximum min-length should be 145")
 	return xx
 
@@ -36,7 +36,7 @@ def bandwidth_type(x):
 logger = logging.getLogger("prinseqLite_R1andR2.py")
 logger.setLevel(logging.INFO)
 
-parser = argparse.ArgumentParser(description="trimming forward reads by -t1 and reverse reads by -t2", usage="python fastxTrimmer_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq -t1 X -t2 Y --outDir outputPath")
+parser = argparse.ArgumentParser(description="Wrapper for prinseq-lite.pl", usage="python simpPrinseqLite_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq --rm_ambig Y/N --min_len 100 --outDir outputPath")
 
 ## minimum read length
 parser.add_argument('--min_len', '-min', type=bandwidth_type, default=100, help="Remove reads less than --min_len: Default=100, 39 < --min_len < 146")
@@ -90,7 +90,7 @@ def getIsolateStr(filePathString, format):
 	fileString = splitStr[fileNameIdx]
 	if(format == 1):
 		isolateString = re.split(pattern='\.', string=splitStr[fileNameIdx])
-		print(isolateString)
+		#print(isolateString)
 		if(re.search(pattern='_R1_001\.fastq', string=isolateString[0])):
 			fileString = re.sub(r'R1_001\.fastq', 'prinseq', isolateString[0])
 		else:
@@ -104,18 +104,40 @@ outputFileString = getIsolateStr(forward, 1)
 
 newOutputFolder = outFolder + outputFileString
 
-## Validate input files
+## Validate input file names: FILTER 1
 
-firstLineFwd = os.popen("zcat {} | head -1".format(forward)).read()
-firstLineRev = os.popen("zcat {} | head -1".format(reverse)).read()
+if(forward == reverse):
+	logger.warn("Forward reads and reverse reads files cannot have the same name and path!")
+	sys.exit(1)
+#elif()
+
+firstLineFwd = None
+firstLineRev = None
+
+## Validate input file suffixes: FILTER 2
+
+if(re.search('\.gz', forward, flags=re.IGNORECASE) and re.search('\.gz', reverse, flags=re.IGNORECASE)):
+	firstLineFwd = os.popen("zcat {} | head -1".format(forward)).read()
+	firstLineRev = os.popen("zcat {} | head -1".format(reverse)).read()
+elif(re.search(r'\.fastq$', forward, flags=re.IGNORECASE) and re.search(r'\.fastq$', reverse, flags=re.IGNORECASE)):
+	firstLineFwd = os.popen("cat {} | head -1".format(forward)).read()
+	firstLineRev = os.popen("cat {} | head -1".format(reverse)).read()
+else:
+	logger.warn("{} and {} must both be gzipped or both gunzipped.".format( getIsolateStr(forward, 0), getIsolateStr(reverse, 0)))
+	sys.exit(1)	
 
 lineIDFwd = re.split(pattern=' ', string=firstLineFwd)
 lineIDRev = re.split(pattern=' ', string=firstLineRev)
 
 ## print("{} should equal {}".format(lineIDFwd[0], lineIDRev[0]))
+
 fwdR1 = lineIDFwd[1].strip()
-revR2 = lineIDFwd[1].strip()
-print("R1 has {} and R2 has {}".format(fwdR1, revR2))
+revR2 = lineIDRev[1].strip()
+
+##print("R1 has {} and R2 has {}".format(fwdR1, revR2))
+
+
+## Validate input file run matching: FILTER 3
 
 if(lineIDFwd[0] == lineIDRev[0]):
 	logger.info("Input file IDs validated.")
@@ -123,6 +145,8 @@ else:
 	logger.warn("{} and {} are not paired ends of same sequencing run.".format( getIsolateStr(forward, 0), getIsolateStr(reverse, 0)))
 	print("Exiting.")
 	sys.exit(1)
+
+## Inspect input file read-pairing: FILTER 4
 
 if(fwdR1.startswith("1") and revR2.startswith("2")):
 	logger.info("Input file forward and reverse indicators validated.")
@@ -132,7 +156,7 @@ else:
 
 
 ## Test if output folder exists
-if(os.path.exists(newOutputFolder):
+if(os.path.exists(newOutputFolder)):
 	if(args.force == 'Y'):
 		os.system("rm -v {}/*".format(newOutputFolder))
 		os.rmdir(newOutputFolder)
@@ -141,7 +165,7 @@ if(os.path.exists(newOutputFolder):
 		print("Output folder {} already exists,\n for outDir = {} . . . ".format(outputFileString, outFolder))
 		print("Use --force Y or change path for --outDir\nExiting.")
 		sys.exit(1)
-elif(args.force == 'N'):
+else:
 	os.mkdir(newOutputFolder)
 
 
