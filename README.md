@@ -13,13 +13,14 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 
 ## Examples
 ##### Trim 3' ends of forward and reverse reads by XX and YY base pair positions, respectively:
-```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF XX --trimR XX -outDir trimmedReads/```
+```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF XX --trimR XX -outDir trimmed/```
+##### Clean forward and reverse reads according to N count and minimum read length only:
+```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
 ##### Parse .bam file for coverage of reads to reference - output as .csv to terminal:
 ```python BamCoveragePrint.py reads_to_ref.sorted.bam --format csv```
 ##### Find percentage of reads with ambiguous nucleotides (N):
 ```python countReadsWithAmbig.py NGSreads_R1_001.fastq --format percent```
 
 ## Coming Soon
-* Python wrapper for prinseq-lite
 * Python wrapper for SPAdes BayesHammer
 * Python scripts for managing DNA .fasta or .txt
