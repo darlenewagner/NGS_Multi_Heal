@@ -2,6 +2,11 @@
 NGS_Multi_Heal simplifies quality analysis, trimming, and healing of paired-end reads
 comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq files.
 
+## Recommended Preprocessing Uses
+* Trimming 3-prime ends of reads prior to high-quality Single Nucleotide Polymorphisms (hqSNPs) analysis
+* Removing ambiguous nucleotides (Ns) from reads prior to hqSNPs analysis or de novo assembly
+* Removing reads under a user-specified minimum prior to de novo assembly
+
 ## Prerequisites
 * Perl 5.X.X or higher
 * Python 3.X.X or higher
@@ -11,15 +16,14 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * prinseq 1.20.X: [sourceforge.net/projects/prinseq](https://sourceforge.net/projects/prinseq/files/standalone/)
 * CG-Pipeline Perl: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
 
-## Examples
-##### Trim 3' ends of forward and reverse reads by XX and YY base pair positions, respectively:
-```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF XX --trimR XX -outDir trimmed/```
-##### Clean forward and reverse reads according to N count and minimum read length only:
+## Example Preprocessing for hqSNPs
+##### Trim 3' ends of forward and reverse reads by 5 and 15 base pair positions, respectively:
+```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF 5 --trimR 15 -outDir trimmed/```
+##### Remove reads < 40 bp and containing > 0 ambiguous nucleotides:
 ```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
-##### Parse .bam file for coverage of reads to reference - output as .csv to terminal:
-```python BamCoveragePrint.py reads_to_ref.sorted.bam --format csv```
-##### Find percentage of reads with ambiguous nucleotides (N):
-```python countReadsWithAmbig.py NGSreads_R1_001.fastq --format percent```
+## Example Preprocessing for de novo assembly
+##### Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
+```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
 
 ## Coming Soon
 * Python wrapper for SPAdes BayesHammer
