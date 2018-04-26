@@ -23,7 +23,7 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 ```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
 ## Example Preprocessing for de novo assembly
 ##### Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
-```python qualPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
+```python qualPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --trim_qual Y --min_score 24 --outDir trimmed/```
 
 ## Coming Soon
 * Python wrapper for SPAdes BayesHammer
