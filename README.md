@@ -2,7 +2,7 @@
 NGS_Multi_Heal simplifies quality analysis, trimming, and healing of paired-end reads
 comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq files.
 
-## Recommended Preprocessing Uses
+## Preprocessing with NGS_Multi_Heal
 * Trimming 3-prime ends of reads prior to high-quality Single Nucleotide Polymorphisms (hqSNPs) analysis
 * Removing ambiguous nucleotides (Ns) from reads prior to hqSNPs analysis or de novo assembly
 * Removing reads under a user-specified minimum prior to de novo assembly
@@ -23,7 +23,7 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 ```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
 ## Example Preprocessing for de novo assembly
 ##### Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
-```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
+```python qualPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
 
 ## Coming Soon
 * Python wrapper for SPAdes BayesHammer
