@@ -22,23 +22,41 @@ def readable_dir(prospective_dir):
 	else:
 		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
+## checking that 3-prime --trimF/trimR parameters are between 0 and 25, inclusive
+def bandwidth_type(x):
+	xx = int(x)
+	if( xx < 0 ):
+		raise argparse.ArgumentTypeError("Minimum trim should be 0 bp")
+	elif( xx > 25 ):
+		raise argparse.ArgumentTypeError("Maximum trim should be 25")
+	return xx
 
 logger = logging.getLogger("fastxTrimmer_R1andR2.py")
 logger.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser(description="trimming forward reads by -t1 and reverse reads by -t2", usage="python fastxTrimmer_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq -t1 X -t2 Y --outDir outputPath")
 
-[parser.add_argument('--trimF', '-t1', required=True, type=int, choices=range(0,21))
-parser.add_argument('--trimR', '-t2', required=True, type=int, choices=range(0,21))
+## Trim from 3-prime
+parser.add_argument('--trimF', '-t1', required=True, type=bandwidth_type, help="Trim 0 to 25 bp from 3-prime of R1 reads.")
+parser.add_argument('--trimR', '-t2', required=True, type=bandwidth_type, help="Trim 0 to 25 bp from R2 reads.")
+
+parser.add_argument('--trim_5prime', default='N', choices=['Y', 'N'], help="Trim 1 to 3 bp from 5-from of both R1 and R2 reads.")
+parser.add_argument('--firstPos', type=int, default=1, choices=range(1,3), help="Number of 5-prime positions to trim.")
 
 parser.add_argument('forward', type=argparse.FileType('r'))
 parser.add_argument('reverse', type=argparse.FileType('r'))
 
+## output folder
 parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='store')
+## cleanup of output folder
+parser.add_argument('--clean_output', '-clean', default='Y', choices=['Y','N'], help="Delete fail and singleton files: Y or N (use 'N' when additional processing downstream needed)")
+## force overwrite of previous output folder
+parser.add_argument('--force', default='N', choices=['Y','N'], help="Overwrite previous output from same filename: Y or N")
+
 
 args = parser.parse_args()
 
-]## output folder
+## output folder
 
 outFolder = args.outDir
 
@@ -48,7 +66,7 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 #add formatter to ch
 ch.setFormatter(formatter)
 #add ch to logger
-[logger.addHandler(ch)
+logger.addHandler(ch)
 
 logger.info("Parameters loaded.")
 
@@ -80,36 +98,81 @@ def getIsolateStr(filePathString):
 
 outputFileString = getIsolateStr(forward)
 
-
 newOutputFolder = outFolder + outputFileString
 
-incre = 1
+## Test if output folder exists
 if(os.path.exists(newOutputFolder)):
-	while(os.path.exists(newOutputFolder)):
-		incre = incre + 1
-		newOutputFolder = newOutputFolder + "_" + str(incre)
-		if(os.path.exists(newOutputFolder) is False):
-			os.mkdir(newOutputFolder)
-			break
+	if(args.force == 'Y'):
+		os.system("rm -v {}/*".format(newOutputFolder))
+		os.rmdir(newOutputFolder)
+		os.mkdir(newOutputFolder)
+	else:
+		print("Output folder {} already exists,\n for outDir = {} . . . ".format(outputFileString, outFolder))
+		print("Use --force Y or change path for --outDir\nExiting.")
+		sys.exit(1)
 else:
 	os.mkdir(newOutputFolder)
-incre = 0
+
 
 logger.info("Output folder validated/created.")
 
-if(re.search('\.fastq', forward, flags=re.IGNORECASE) and re.search('\.fastq', reverse, flags=re.IGNORECASE)):
+gunzipForward = re.sub(r'\.gz$', '', forward)
+gunzipReverse = re.sub(r'\.gz$', '', reverse)
+
+if(re.search(r'\.fastq$', forward, flags=re.IGNORECASE) and re.search(r'\.fastq$', reverse, flags=re.IGNORECASE)):
 	#print("Nice files for", newOutputFolder)
-	outputForward = newOutputFolder + "/" + outputFileString + "_R1_001.cleaned.fastq"
-	os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, forward, outputForward))
+	outputForward = newOutputFolder + "/" + outputFileString + "_R1_001.cleaned.fastq.gz"
+	outputReverse = newOutputFolder + "/" + outputFileString + "_R2_001.cleaned.fastq.gz"
+
+	if(args.trim_5prime == 'Y'):
+		int5prime = int(args.firstPos) + 1
+		logger.info("Beginning 5-prime trim")
+		interForward = newOutputFolder + "/prT_" + outputFileString + "_1.fastq" 
+		interReverse = newOutputFolder + "/prT_" + outputFileString + "_2.fastq"
+		os.system("fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, forward, interForward))
+		logger.info("forward (R1) fastq 5-prime trimming complete")
+		os.system("fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, reverse, interReverse))
+		logger.info("reverse (R2) fastq 5-prime trimming complete")
+		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, interForward, outputForward))
+		logger.info("forward (R1) fastq 3-prime trimming complete")
+		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, interReverse, outputReverse))
+		logger.info("reverse (R2) fastq 3-prime trimming complete")
+		os.system("rm -v {}".format(interForward))
+		os.system("rm -v {}".format(interReverse))
+		outputLog = newOutputFolder + "/parameters.log"
+		os.system("echo 'fastx_trimmer: All reads trimmed {} bp at 5-prime; Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(int5prime ,intTrimFwd, intTrimRev, outputLog))
+	else:	
+		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, forward, outputForward))
+		logger.info("forward (R1) fastq 3-prime trimming complete")
+		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, reverse, outputReverse))
+		logger.info("reverse (R2) fastq 3-prime trimming complete")
+		outputLog = newOutputFolder + "/parameters.log"
+		os.system("echo 'fastx_trimmer: Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(intTrimFwd, intTrimRev, outputLog))
+
+elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fastq.gz', reverse, flags=re.IGNORECASE)):
+	logger.info("gunzip {}".format(forward))
+	os.system("gunzip -c {} > {}".format(forward, gunzipForward))
+	logger.info("forward (R1) gunzip complete; start trimming")
+	outputForward = newOutputFolder + "/" + outputFileString + "_R1_001.cleaned.fastq.gz"
+	os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, gunzipForward, outputForward))
 	logger.info("forward (R1) fastq file trimming complete")
-	outputReverse = newOutputFolder + "/" + outputFileString + "_R2_001.cleaned.fastq"
-	os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, forward, outputReverse))
-	logger.info("reverse (R2) fastq file trimming complete")
+	logger.info("gunzip {}".format(reverse))
+	os.system("gunzip -c {} > {}".format(reverse, gunzipReverse))
+	logger.info("reverse (R2) gunzip complete; start trimming")
+	outputReverse = newOutputFolder + "/" + outputFileString + "_R2_001.cleaned.fastq.gz"
+	os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, gunzipReverse, outputReverse))
 	outputLog = newOutputFolder + "/parameters.log"
 	os.system("echo 'fastx_trimmer: Forward reads trimmed {} and reverse reads trimmed {}' > {}".format(intTrimFwd, intTrimRev, outputLog))
+	logger.info("reverse (R2) fastq file trimming complete")
+	os.system("rm -v {}".format(gunzipForward))
+	os.system("rm -v {}".format(gunzipReverse))
+else:
+	logger.warn("Filetype - R1 {} R2 {} must both end in .fastq".format(forward, reverse))
+	logger.warn("Filetype - R1 {} and R2 {} must both end in .fastq.gz".format(forward, reverse))
+	logger.exception("Input files must be FASTQ ending in either .fastq or .fastq.gz")
 
- ##elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fastq.gz', reverse, flags=re.IGNORECASE)):
-	
+
+		
 
 
 
