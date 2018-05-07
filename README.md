@@ -21,10 +21,12 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 ```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF 5 --trimR 15 -outDir trimmed/```
 ##### Remove reads < 40 bp and containing > 0 ambiguous nucleotides:
 ```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
-## Example Preprocessing for de novo assembly
-##### Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
-```python qualPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --trim_qual Y --min_score 24 --outDir trimmed/```
-
+## Example Preprocessing genomeA reads for de novo assembly
+##### Single-Step: Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
+```python qualPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --trim_qual Y --min_score 24 --outDir trimmed_genomeA_reads/```
+##### Two-Step: Remove reads < 50 bp using simpPrinseqLite_R1andR2.py followed by fastxTrimmer_R1andR2.py trimming:
+```python simpPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 50 --rm_ambig N --outDir trimmed_genomeA_reads/```
+```python fastxTrimmer_R1andR2.py trimmed_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_1.fastq trimmed_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_2.fastq --trimF 5 --trimR 15 -outDir trimmed_genomeA_reads/```
 ## Coming Soon
 * Python wrapper for SPAdes BayesHammer
 * Python scripts for managing DNA .fasta or .txt
