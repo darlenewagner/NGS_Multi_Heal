@@ -33,7 +33,7 @@ def bandwidth_type(x):
 	return xx
 
 
-logger = logging.getLogger("prinseqLite_R1andR2.py")
+logger = logging.getLogger("simpPrinseqLite_R1andR2.py")
 logger.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser(description="Wrapper for prinseq-lite.pl", usage="python simpPrinseqLite_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq --rm_ambig Y/N --min_len 100 --outDir outputPath")
@@ -93,6 +93,9 @@ def getIsolateStr(filePathString, format):
 		#print(isolateString)
 		if(re.search(pattern='_R1_001\.fastq', string=isolateString[0])):
 			fileString = re.sub(r'R1_001\.fastq', 'prinseq', isolateString[0])
+		elif(re.search(pattern='R1_001_prinseq', string=isolateString[0]) and (args.rm_ambig == 'N')):
+			## If prior prinseq output and remove_ambig == N, simplify output folder
+			fileString = re.sub(r'R1_001_prinseq_R1_001\.fastq', 'minLength', isolateString[0])
 		else:
 			fileString = isolateString[0] + '_prinseq'
 	#print(fileString)
