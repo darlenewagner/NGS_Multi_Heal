@@ -27,8 +27,8 @@ def bandwidth_type(x):
 	xx = int(x)
 	if( xx < 0 ):
 		raise argparse.ArgumentTypeError("Minimum trim should be 0 bp")
-	elif( xx > 25 ):
-		raise argparse.ArgumentTypeError("Maximum trim should be 25")
+	elif( xx > 30 ):
+		raise argparse.ArgumentTypeError("Maximum trim should be 30")
 	return xx
 
 logger = logging.getLogger("fastxTrimmer_R1andR2.py")
@@ -37,8 +37,8 @@ logger.setLevel(logging.INFO)
 parser = argparse.ArgumentParser(description="trimming forward reads by -t1 and reverse reads by -t2", usage="python fastxTrimmer_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq -t1 X -t2 Y --outDir outputPath")
 
 ## Trim from 3-prime
-parser.add_argument('--trimF', '-t1', required=True, type=bandwidth_type, help="Trim 0 to 25 bp from 3-prime of R1 reads.")
-parser.add_argument('--trimR', '-t2', required=True, type=bandwidth_type, help="Trim 0 to 25 bp from R2 reads.")
+parser.add_argument('--trimF', '-t1', required=True, type=bandwidth_type, help="Trim 0 to 30 bp from 3-prime of R1 reads.")
+parser.add_argument('--trimR', '-t2', required=True, type=bandwidth_type, help="Trim 0 to 30 bp from R2 reads.")
 
 parser.add_argument('--trim_5prime', default='N', choices=['Y', 'N'], help="Trim 1 to 3 bp from 5-from of both R1 and R2 reads.")
 parser.add_argument('--firstPos', type=int, default=1, choices=range(1,3), help="Number of 5-prime positions to trim.")
@@ -88,10 +88,10 @@ def getIsolateStr(filePathString):
 	splitStr = re.split(pattern='/', string=filePathString)
 	fileNameIdx = len(splitStr) - 1
 	isolateString = re.split(pattern='\.', string=splitStr[fileNameIdx])
-	if(re.search(pattern='_R1_001\.fas', string=isolateString[0])):
-		isolateString = re.sub(r'_R1_001\.fas', '_fastxTrim\.fas', isolateString[0])
-	elif(re.search(pattern='_R1_001\.cleaned', string=isolateString[0])):
-		isolateString = re.sub(r'_R1_001\.cleaned', '_fastxTrim', isolateString[0])
+	if(re.search(pattern='_R1_001', string=isolateString[0])):
+		isolateString = re.sub(r'_R1_001', '_fastxTrim', isolateString[0])
+	elif(re.search(pattern='_R1_001', string=isolateString[0]) and re.search(pattern='clean', string=isolateString[1])):
+		isolateString = re.sub(r'_R1_001', '_fastxTrim', isolateString[0])
 	else:
 		isolateString = isolateString[0] + '_fastxTrim'
 
