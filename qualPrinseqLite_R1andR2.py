@@ -33,7 +33,7 @@ def bandwidth_type(x):
 	return xx
 
 
-logger = logging.getLogger("prinseqLite_R1andR2.py")
+logger = logging.getLogger("qualPrinseqLite_R1andR2.py")
 logger.setLevel(logging.INFO)
 
 parser = argparse.ArgumentParser(description="Wrapper for prinseq-lite.pl", usage="python simpPrinseqLite_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq --rm_ambig Y/N --min_len 100  --trim_qual [Y/N] --outDir outputPath")
