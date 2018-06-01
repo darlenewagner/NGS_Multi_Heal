@@ -33,8 +33,8 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 ```python fastxTrimmer_R1andR2.py trimmed/reads_prinseq_R1_001.fastq trimmed/reads_prinseq_R2_001.fastq --trimF 5 --trimR XX -outDir trimmed/```
 ## Example Preprocessing genomeA reads for de novo assembly
 ### Method I. Single master wrapper for prinseq-lite.pl 
-##### Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
-```python qualPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --trim_qual Y --min_score 24 --outDir trim_genomeA_reads/```
+##### Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 26:
+```python qualPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --trim_qual Y --min_score 26 --outDir trim_genomeA_reads/```
 ### Method II. Prinseq-lite.pl wrapper followed by fastx_trimmer wrapper
 ##### Step 1. Remove reads < 100 bp and/or containing > 1 ambiguous nucleotides
 ```python simpPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 1 --outDir trim_genomeA_reads/```
