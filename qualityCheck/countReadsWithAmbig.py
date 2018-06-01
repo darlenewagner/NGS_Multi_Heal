@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import os
 import os.path
 import argparse
 import re
@@ -26,6 +27,8 @@ parser = argparse.ArgumentParser(description='Find count or proportion of reads 
 
 parser.add_argument("fastq", type=ext_check('.fastq', 'fastq.gz', argparse.FileType('r')))
 
+parser.add_argument('--internalN', '-inner' , default='N', choices=['Y', 'N'], help="Count internal Ns only (remove 5-prime and 3-prime Ns first)")
+
 parser.add_argument("--format", default='verbose', type = lambda s : s.lower(), choices=['simple','integer','percent','verbose','s','simp','i','p','v'])
 
 args = parser.parse_args()
@@ -41,31 +44,88 @@ logger.addHandler(ch)
 
 fastqFilePath = args.fastq.name
 
+## Simple file folder path extractor function, when format == 0
+
+def getIsolateStr(filePathString, format):
+	splitStr = re.split(pattern='/', string=filePathString)
+	fileNameIdx = len(splitStr) - 1
+	fileString = splitStr[fileNameIdx]
+	if(format == 1):
+		isolateString = re.split(pattern='\.', string=splitStr[fileNameIdx])
+		#print(isolateString)
+		if(re.search(pattern='R1_001_prinseq_R1_001', string=isolateString[0]) and (args.rm_ambig == 'N')):
+			## If prior prinseq output and remove_ambig == N, simplify output folder
+			fileString = re.sub(r'R1_001_prinseq_R1_001', 'minLength', isolateString[0])
+		elif(re.search(pattern='_R1_001', string=isolateString[0])):
+			fileString = re.sub(r'R1_001', 'prinseq', isolateString[0])
+		else:
+			fileString = isolateString[0] + '_prinseq'
+	elif(format == 0):  ## convert fileString to directory path
+		#fileNameIdx = fileNameIdx - 1
+		ii = 1
+		fileString = splitStr[0]
+		while ii < fileNameIdx:
+			fileString = fileString + "/" + splitStr[ii]
+			ii = ii + 1
+	#print(fileString)
+	return fileString
+
+
+myFilePath = getIsolateStr(fastqFilePath, 0)
+
+tempFilePath = myFilePath + "/tempPrinseq/"
+goodFilePath = tempFilePath + "/goodTrEndN"
+badFilePath = tempFilePath + "/badTrEndN"
+runLog = myFilePath + "/prinseq.runtime.log"
+
+if(args.internalN == 'Y'):
+	#if(os.path.exists(myFilePath)):
+	os.mkdir(tempFilePath)
+
 readCount = None
-ambigCount = None
+fullAmbigCount = None
+innerAmbigCount = None
 gunzFastqFilePath = None
 
 if(re.search(r'\.fastq$', fastqFilePath, flags=re.IGNORECASE)):
 	readCount = os.popen("prinseq-lite.pl -stats_info -fastq {} | tail -1 | perl -ne '$_=~s/stats_info\s+reads\s+//g; print;'".format(fastqFilePath)).read()
-	ambigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(fastqFilePath)).read()
+	fullAmbigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(fastqFilePath)).read()
+	if(args.internalN == 'Y'):
+		os.system("prinseq-lite.pl -fastq {} -out_good {} -out_bad {} -trim_ns_left 1 -trim_ns_right 1 ns_max_p 93 2> {}".format(fastqFilePath, goodFilePath, badFilePath, runLog)) 
+		goodFilePath = goodFilePath + "\.fastq"
+		innerAmbigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(goodFilePath)).read()
 elif(re.search(r'fastq\.gz$', fastqFilePath, flags=re.IGNORECASE)):
 	os.system("gunzip -c {} > {}".format(fastqFilePath, gunzFastqFilePath))	
 	readCount = os.popen("prinseq-lite.pl -stats_info -fastq {} | tail -1 | perl -ne '$_=~s/stats_info\s+reads\s+//g; print;'".format(gunzFastqFilePath)).read()
-	ambigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(gunzFastqFilePath)).read()
+	fullAmbigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(gunzFastqFilePath)).read()
+	if(args.internalN == 'Y'):
+		os.system("prinseq-lite.pl -fastq {} -out_good {} -out_bad {} -trim_ns_left 1 -trim_ns_right 1 ns_max_p 93 2> {}".format(fastqFilePath, goodFilePath, badFilePath, runLog)) 
+		goodFilePath = goodFilePath + "\.fastq"
+		innerAmbigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(goodFilePath)).read()
 	os.system("rm {}".format(gunzFastqFilePath))
 else:
 	logger.warn("Input file unrecognized format!")
 	sys.exit(1)	
 
+os.system("rm -r {}".format(tempFilePath))
 
 intReadCount = int(float(readCount))
 
-if(ambigCount):
-	intAmbigCount = int(float(ambigCount.rstrip()))
-else:
-	intAmbigCount = 0
+ifullAmbigCount = 0
 
-#print(intAmbigCount)
+if(fullAmbigCount):
+	ifullAmbigCount = int(float(fullAmbigCount.rstrip()))
+else:
+	ifullAmbigCount = 0
+
+intInAmbigCount = 0
+
+if(innerAmbigCount):
+	intInAmbigCount = int(float(innerAmbigCount.rstrip()))
+else:
+	intInAmbigCount = 0
+
+#print(ifullAmbigCount)
 
 splitFileStr = re.split(pattern='/', string=fastqFilePath)
 nameIdx = len(splitFileStr) - 1
@@ -75,22 +135,31 @@ if(intReadCount < 1):
 	intReadCount = 1
 	warnings.warn("No postive value for read counts!")
 
-percentAmbig = float(intAmbigCount/intReadCount)*100
+percentAmbig0 = float(ifullAmbigCount/intReadCount)*100
+percentAmbig1 = float(intInAmbigCount/intReadCount)*100
 
 # verbose output: readsFile.fastq         Total Reads: XXXXXXX    Reads with N: YYYY  
 if ( args.format == 'verbose' or args.format == 'v' ):
-	print(fileName, "\tTotal Reads: ", intReadCount, "\tReads with N: ", intAmbigCount)
-
+	if(args.internalN == 'Y'):
+		print(fileName, "\tTotal Reads: ", intReadCount, "\tAll reads with N: ", ifullAmbigCount, "\tReads with internal N: ", intInAmbigCount)
+	else:
+		print(fileName, "\tTotal Reads: ", intReadCount, "\tAll reads with N: ", ifullAmbigCount)
 # integers-only output: readsFile.fastq    XXXXXXX    YYYY
 elif ( args.format == 'integer' or args.format == 'i'):
-	print(fileName, "\t", intReadCount, "\t", intAmbigCount)
+	if(args.internalN == 'Y'):
+		print(fileName, "\t", intReadCount, "\t", ifullAmbigCount, "\t", intInAmbigCount)
+	else:
+		print(fileName, "\t", intReadCount, "\t", ifullAmbigCount)
 
 # percent reads with N: readsFile.fastq    ZZ.ZZZZ %
 elif ( args.format == 'percent' or args.format == 'p' ):
-	print(fileName, "\t", "%6.4f" % percentAmbig, "%")
+	if(args.internalN == 'Y'):
+		print(fileName, "\t", "%6.4f" % percentAmbig0, "%", "\t", "%6.4f" % percentAmbig1, "%")
+	else:
+		print(fileName, "\t", "%6.4f" % percentAmbig0, "%")
 
 # integer N count only: YYYY
 elif ( args.format == 'simp' or args.format == 's' or args.format == 'simple'):
-	print(intAmbigCount)
+	print(ifullAmbigCount)
 
 args.fastq.close()
