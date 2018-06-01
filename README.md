@@ -32,13 +32,14 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 ##### Step 2. Trim 3' ends of forward and reverse reads as shown under Method I:
 ```python fastxTrimmer_R1andR2.py trimmed/reads_prinseq_R1_001.fastq trimmed/reads_prinseq_R2_001.fastq --trimF 5 --trimR XX -outDir trimmed/```
 ## Example Preprocessing genomeA reads for de novo assembly
-##### Single-Step: Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
+### Method I. Single master wrapper for prinseq-lite.pl 
+##### Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
 ```python qualPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --trim_qual Y --min_score 24 --outDir trim_genomeA_reads/```
-##### Two-Step: Remove reads < 50 bp using simpPrinseqLite_R1andR2.py followed by fastxTrimmer_R1andR2.py trimming:
-###### 1)
-```python simpPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 50 --rm_ambig N --outDir trim_genomeA_reads/```
-###### 2)
-```python fastxTrimmer_R1andR2.py trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_1.fastq trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_2.fastq --trimF 5 --trimR 15 --outDir trim_genomeA_reads/```
+### Method II. Prinseq-lite.pl wrapper followed by fastx_trimmer wrapper
+##### Step 1. Remove reads < 100 bp and/or containing > 1 ambiguous nucleotides
+```python simpPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 1 --outDir trim_genomeA_reads/```
+##### Step 2. Trim 3' ends of forward and reverse reads as shown under Method I for hqSNPs
+```python fastxTrimmer_R1andR2.py trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_1.fastq trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_2.fastq --trimF 5 --trimR XX --outDir trim_genomeA_reads/```
 ## Coming Soon
 * Python wrapper for SPAdes BayesHammer
 * Python scripts for managing DNA .fasta or .txt
