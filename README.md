@@ -18,15 +18,19 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * CG-Pipeline Perl: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
 
 ## Example Preprocessing for hqSNPs
-##### Trim 3' ends of forward and reverse reads by 5 and 15 base pair positions, respectively:
+### Method I. Uniform 3-prime trim for forward and reverse reads 
+##### Trim 3' ends of forward and reverse reads by 5 and variable (XX) base pair positions, respectively:
 ```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF 5 --trimR XX -outDir trimmed/```
 * trim forward (R1) reads by 5 bp.
 * trim reverse (R2) reads by 5 bp when average PHRED quality score is > 31.00
-** otherwise, trim reverse reads by 10 bp for PHRED qual. < 31.00
-** trim reverse reads by 15 bp for PHRED qual. < 30.00
-** trim reverse reads by 20 bp for PHRED qual. < 29.00
-##### Remove reads < 40 bp and containing > 0 ambiguous nucleotides:
+* otherwise, trim reverse reads by 10 bp for PHRED qual. < 31.00
+* trim reverse reads by 15 bp for PHRED qual. < 30.00
+* trim reverse reads by 20 bp for PHRED qual. < 29.00
+### Method II. 
+##### Step 1. Remove reads < 40 bp and/or containing > 0 ambiguous nucleotides:
 ```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
+##### Step 2. Trim 3' ends of forward and reverse reads as shown under Method I:
+```python fastxTrimmer_R1andR2.py trimmed/reads_prinseq_R1_001.fastq trimmed/reads_prinseq_R2_001.fastq --trimF 5 --trimR XX -outDir trimmed/```
 ## Example Preprocessing genomeA reads for de novo assembly
 ##### Single-Step: Remove reads < 100 bp, containing > 0 ambiguous nucleotides, and trim regions with quality < 24:
 ```python qualPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 0 --trim_qual Y --min_score 24 --outDir trim_genomeA_reads/```
