@@ -19,7 +19,12 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 
 ## Example Preprocessing for hqSNPs
 ##### Trim 3' ends of forward and reverse reads by 5 and 15 base pair positions, respectively:
-```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF 5 --trimR 15 -outDir trimmed/```
+```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF 5 --trimR XX -outDir trimmed/```
+* trim forward (R1) reads by 5 bp.
+* trim reverse (R2) reads by 5 bp when average PHRED quality score is > 31.00
+** otherwise, trim reverse reads by 10 bp for PHRED qual. < 31.00
+** trim reverse reads by 15 bp for PHRED qual. < 30.00
+** trim reverse reads by 20 bp for PHRED qual. < 29.00
 ##### Remove reads < 40 bp and containing > 0 ambiguous nucleotides:
 ```python simpPrinseqLite_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --min_len 40 --rm_ambig Y --ambig_allow 0 --outDir trimmed/```
 ## Example Preprocessing genomeA reads for de novo assembly
