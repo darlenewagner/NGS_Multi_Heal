@@ -39,7 +39,7 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 ##### Step 1. Remove reads < 100 bp and/or containing > 1 ambiguous nucleotides
 ```python simpPrinseqLite_R1andR2.py genomeA_reads_R1_001.fastq genomeA_reads_R2_001.fastq --min_len 100 --rm_ambig Y --ambig_allow 1 --outDir trim_genomeA_reads/```
 ##### Step 2. Trim 3' ends of forward and reverse reads as shown under Method I for hqSNPs
-```python fastxTrimmer_R1andR2.py trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_1.fastq trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_2.fastq --trimF 5 --trimR XX --outDir trim_genomeA_reads/```
+```python fastxQualAdaptTrimmer_R1andR2.py trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_1.fastq trim_genomeA_reads/genomeA_reads_R1_001_prinseq/genomeA_reads_R1_001_prinseq_2.fastq --trimF 5 --trimR XX --outDir trim_genomeA_reads/```
 ## Coming Soon
 * Python wrapper for SPAdes BayesHammer
 * Python scripts for managing DNA .fasta or .txt
