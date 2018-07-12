@@ -33,10 +33,10 @@ def bandwidth_type(x):
 	return xx
 
 
-logger = logging.getLogger("qualPrinseqLite_R1andR2.py")
+logger = logging.getLogger("windowQualPrinseqLite_R1andR2.py")
 logger.setLevel(logging.INFO)
 
-parser = argparse.ArgumentParser(description="Wrapper for prinseq-lite.pl", usage="python qualPrinseqLite_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq --rm_ambig Y/N --min_len 100  --trim_qual [Y/N] --outDir outputPath")
+parser = argparse.ArgumentParser(description="Wrapper for prinseq-lite.pl", usage="python windowQualPrinseqLite_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq --rm_ambig Y/N --min_len 100 --trim_qual [Y/N] --min_score 28 --qual_window 20 --clean_output [Y/N] --outDir outputPath")
 
 ## minimum read length
 parser.add_argument('--min_len', '-min', type=bandwidth_type, default=100, help="Remove reads less than --min_len: Default=100, 39 < --min_len < 146")
@@ -47,8 +47,8 @@ parser.add_argument('--ambig_allow', '-ns_max_n', type=int, default=1, choices=r
 
 ## Trim by PHRED Q-score
 parser.add_argument('--trim_qual', default='N', choices=['Y','N'], help="trim by base pair quality (Y|N)?")
-parser.add_argument('--min_score', default=24, type=int, choices=range(19,30), help="quality score on which to trim [20 to 30: default 24]")
-parser.add_argument('--qual_window', default=20, type=int, choices=range(10, 40), help="sliding window size used to calculate quality score [10 to 40: default 20]")
+parser.add_argument('--min_score', default=28, type=int, choices=range(19,30), help="quality score on which to trim [20 to 30: default 28]")
+parser.add_argument('--qual_window', default=20, type=int, choices=range(10, 46), help="sliding window size used to calculate quality score [10 to 45: default 20]")
 
 ## input files
 parser.add_argument('forward', type=argparse.FileType('r'))
@@ -252,7 +252,7 @@ elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fast
 		os.system("echo 'prinseq-lite.pl: reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intMinScore, intTrimN, intWindow, intMinLen, outputLog))
 	elif((args.rm_ambig == 'Y') and (args.trim_qual == 'N')):	
 		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} 2> {}"
-.format(gunzipForward, gunzipReverse, outputSuccess, outputFAIL,intMinLen, intTrimN, runLog))
+.format(gunzipForward, gunzipReverse, outputSuccess, outputFAIL, intMinLen, intTrimN, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
 		os.system("echo 'prinseq-lite.pl: reads with > {} Ns removed/trimmed; reads less than {} bp length removed' > {}".format(intTrimN, intMinLen, outputLog))
 	else:
