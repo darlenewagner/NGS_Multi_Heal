@@ -36,7 +36,7 @@ def bandwidth_type(x):
 logger = logging.getLogger("windowQualPrinseqLite_R1andR2.py")
 logger.setLevel(logging.INFO)
 
-parser = argparse.ArgumentParser(description="Wrapper for prinseq-lite.pl", usage="python windowQualPrinseqLite_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq --rm_ambig Y/N --min_len 100 --trim_qual [Y/N] --min_score 28 --qual_window 20 --clean_output [Y/N] --outDir outputPath")
+parser = argparse.ArgumentParser(description="Wrapper for prinseq-lite", usage="python windowQualPrinseqLite_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq --rm_ambig Y/N --min_len 100 --trim_qual [Y/N] --min_score 28 --qual_window 20 --clean_output [Y/N] --outDir outputPath")
 
 ## minimum read length
 parser.add_argument('--min_len', '-min', type=bandwidth_type, default=100, help="Remove reads less than --min_len: Default=100, 39 < --min_len < 146")
@@ -202,25 +202,25 @@ intMinScore = int(args.min_score)
 
 ### Begin performing read clean
 
-logger.info("starting prinseq-lite.pl")
+logger.info("starting prinseq-lite")
 
 if(re.search(r'\.fastq$', forward, flags=re.IGNORECASE) and re.search(r'\.fastq$', reverse, flags=re.IGNORECASE)):
 	if((args.rm_ambig == 'Y') and (args.trim_qual == 'Y')):	
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}".format(forward, reverse, outputSuccess, outputFAIL, intMinLen, intTrimN, intMinScore, intWindow, runLog))
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}".format(forward, reverse, outputSuccess, outputFAIL, intMinLen, intTrimN, intMinScore, intWindow, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads with > {} Ns removed/trimmed; reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intTrimN, intMinScore, intWindow, intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads with > {} Ns removed/trimmed; reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intTrimN, intMinScore, intWindow, intMinLen, outputLog))
 	elif((args.rm_ambig == 'N') and (args.trim_qual == 'Y')):	
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}".format(forward, reverse, outputSuccess, outputFAIL, intMinLen, intMinScore, intWindow, runLog))
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}".format(forward, reverse, outputSuccess, outputFAIL, intMinLen, intMinScore, intWindow, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intMinScore, intTrimN, intWindow, intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intMinScore, intWindow, intMinLen, outputLog))
 	elif((args.rm_ambig == 'Y') and (args.trim_qual == 'N')):	
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} 2> {}".format(forward, reverse, outputSuccess, outputFAIL,intMinLen, intTrimN, runLog))
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} 2> {}".format(forward, reverse, outputSuccess, outputFAIL,intMinLen, intTrimN, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads with > {} Ns removed/trimmed; reads less than {} bp length removed' > {}".format(intTrimN, intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads with > {} Ns removed/trimmed; reads less than {} bp length removed' > {}".format(intTrimN, intMinLen, outputLog))
 	else:
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} 2> {}".format(forward, reverse, outputSuccess, outputFAIL, intMinLen, runLog))
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} 2> {}".format(forward, reverse, outputSuccess, outputFAIL, intMinLen, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads less than {} bp length removed' > {}".format(intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads less than {} bp length removed' > {}".format(intMinLen, outputLog))
 
 elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fastq.gz', reverse, flags=re.IGNORECASE)):
 	gunzipForward = re.sub(r'\.gz$', '', forward)
@@ -241,24 +241,24 @@ elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fast
 	
 	### Begin performing read clean
 	if((args.rm_ambig == 'Y') and (args.trim_qual == 'Y')):
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}"
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}"
 .format(gunzipForward, gunzipReverse, outputSuccess, outputFAIL,intMinLen, intTrimN, intMinScore, intWindow, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads with > {} Ns removed/trimmed; reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intTrimN, intMinScore, intWindow, intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads with > {} Ns removed/trimmed; reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intTrimN, intMinScore, intWindow, intMinLen, outputLog))
 	elif((args.rm_ambig == 'N') and (args.trim_qual == 'Y')):
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}"
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_qual_right {} -trim_qual_type mean -trim_qual_window {} -trim_qual_step 5 2> {}"
 .format(gunzipForward, gunzipReverse, outputSuccess, outputFAIL,intMinLen, intMinScore, intWindow, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intMinScore, intTrimN, intWindow, intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads 3-prime end Q < {} trimmed with trim_qual_window = {} bp; reads less than {} bp length removed' > {}".format(intMinScore, intWindow, intMinLen, outputLog))
 	elif((args.rm_ambig == 'Y') and (args.trim_qual == 'N')):	
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} 2> {}"
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} -trim_ns_left 1 -trim_ns_right 1 -ns_max_n {} 2> {}"
 .format(gunzipForward, gunzipReverse, outputSuccess, outputFAIL, intMinLen, intTrimN, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads with > {} Ns removed/trimmed; reads less than {} bp length removed' > {}".format(intTrimN, intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads with > {} Ns removed/trimmed; reads less than {} bp length removed' > {}".format(intTrimN, intMinLen, outputLog))
 	else:
-		os.system("prinseq-lite.pl -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} 2> {}".format(gunzipForward, gunzipReverse, outputSuccess, outputFAIL, intMinLen, runLog))
+		os.system("prinseq-lite -fastq {} -fastq2 {} -out_good {} -out_bad {} -min_len {} 2> {}".format(gunzipForward, gunzipReverse, outputSuccess, outputFAIL, intMinLen, runLog))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'prinseq-lite.pl: reads less than {} bp length removed' > {}".format(intMinLen, outputLog))
+		os.system("echo 'prinseq-lite: reads less than {} bp length removed' > {}".format(intMinLen, outputLog))
 
 	os.system("rm -v {}".format(gunzipForward))
 	os.system("rm -v {}".format(gunzipReverse))
@@ -279,5 +279,5 @@ if(args.clean_output == 'Y'):
 	os.system("rm -v {}'_1.fastq'".format(outputSuccess))
 	os.system("rm -v {}'_2.fastq'".format(outputSuccess))
 		
-logger.info("prinseq-lite.pl trimming complete")
+logger.info("prinseq-lite trimming complete")
 
