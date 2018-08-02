@@ -79,7 +79,8 @@ badFilePath = tempFilePath + "/badTrEndN"
 runLog = myFilePath + "/prinseq.runtime.log"
 
 if(args.internalN == 'Y'):
-	#if(os.path.exists(myFilePath)):
+	if(os.path.exists(tempFilePath)):
+		os.system("rm -r {}".format(tempFilePath))
 	os.mkdir(tempFilePath)
 
 readCount = None
@@ -94,20 +95,21 @@ if(re.search(r'\.fastq$', fastqFilePath, flags=re.IGNORECASE)):
 		os.system("prinseq-lite.pl -fastq {} -out_good {} -out_bad {} -trim_ns_left 1 -trim_ns_right 1 ns_max_p 93 2> {}".format(fastqFilePath, goodFilePath, badFilePath, runLog)) 
 		goodFilePath = goodFilePath + "\.fastq"
 		innerAmbigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(goodFilePath)).read()
+		#os.system("rm -r {}".format(tempFilePath))
 elif(re.search(r'fastq\.gz$', fastqFilePath, flags=re.IGNORECASE)):
 	os.system("gunzip -c {} > {}".format(fastqFilePath, gunzFastqFilePath))	
 	readCount = os.popen("prinseq-lite.pl -stats_info -fastq {} | tail -1 | perl -ne '$_=~s/stats_info\s+reads\s+//g; print;'".format(gunzFastqFilePath)).read()
 	fullAmbigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(gunzFastqFilePath)).read()
 	if(args.internalN == 'Y'):
-		os.system("prinseq-lite.pl -fastq {} -out_good {} -out_bad {} -trim_ns_left 1 -trim_ns_right 1 ns_max_p 93 2> {}".format(fastqFilePath, goodFilePath, badFilePath, runLog)) 
+		os.system("prinseq-lite.pl -fastq {} -out_good {} -out_bad {} -trim_ns_left 1 -trim_ns_right 1 ns_max_p 93 2> {}".format(gunzFastqFilePath, goodFilePath, badFilePath, runLog)) 
 		goodFilePath = goodFilePath + "\.fastq"
 		innerAmbigCount = os.popen("prinseq-lite.pl -stats_ns -fastq {} | tail -1 | perl -ne '@F=split(/\t/, $_); print \"$F[2]\";'".format(goodFilePath)).read()
-	os.system("rm {}".format(gunzFastqFilePath))
+		os.system("rm {}".format(gunzFastqFilePath))
 else:
 	logger.warn("Input file unrecognized format!")
 	sys.exit(1)	
-
-os.system("rm -r {}".format(tempFilePath))
+if(args.internalN == 'Y'):
+	os.system("rm -r {}".format(tempFilePath))
 
 intReadCount = int(float(readCount))
 
