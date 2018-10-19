@@ -44,7 +44,6 @@ def readable_dir(prospective_dir):
 		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
 
-
 parser = argparse.ArgumentParser(description='output contig count, average contig length, N50 contig, and maximum contig length for input.assembly.fasta', usage="fastaJudgementSort.py filepath1/file1.assembly.fasta filepath2/file2.assembly.fasta --outDir hell_path/fasta_hell --minLength 500(default)")
 
 ## two input files required
@@ -66,8 +65,20 @@ args = parser.parse_args()
 inFileName1 = getIsolateID(args.filename1.name)
 inFileName2 = getIsolateID(args.filename2.name)
 
+helHeim = args.outDir
 
 intMinLen = args.minLength
+
+## Activate logging
+
+logger = logging.getLogger("simpPrinseqLite_R1andR2.py")
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+
+if(args.filename1.name == args.filename2.name):
+	logger.warn("Input files have the same name and path -- trivial comparison!")
+	sys.exit(1)
 
 #draftContigs = []
 
@@ -175,6 +186,12 @@ for contigID in sorted(contigLengths1, key=contigLengths1.__getitem__, reverse=T
 		if(count == 0):
 			contigMax1 = contigLengths1[contigID]
 			top = 1
+		if(count == 1):
+			contigSecond1 = contigLengths1[contigID]
+		if(count == 2):
+			contigThird1 = contigLengths1[contigID]
+		if(count == 3):
+			contigFourth1 = contigLengths1[contigID]
 		count = count + 1
 		draftLength1 = draftLength1 + contigLengths1[contigID]
 
@@ -190,6 +207,12 @@ for contigID in sorted(contigLengths2, key=contigLengths2.__getitem__, reverse=T
 		if(count == 0):
 			contigMax2 = contigLengths2[contigID]
 			top = 1
+		if(count == 1):
+			contigSecond2 = contigLengths2[contigID]
+		if(count == 2):
+			contigThird2 = contigLengths2[contigID]
+		if(count == 3):
+			contigFourth2 = contigLengths2[contigID]
 		count = count + 1
 		draftLength2 = draftLength2 + contigLengths2[contigID]
 
@@ -220,15 +243,48 @@ for contigID in sorted(contigLengths2, key=contigLengths2.__getitem__, reverse=T
 		break
 
 
+## Output Results unless --format = mute
+
 if ( args.format == 'verbose' or args.format == 'v' ):
-	print("Assembly File\tMinimum Contig Length:\tcontigCount\tavgContig\tN50\tmaxContig\tdraftLength")
-	print("{}\t".format(inFileName1), ">", intMinLen - 1 ,"bp:\t", contigCount1, "\t", "%.0f" % avgContig1, "\t", contigN50_1, "\t", contigMax1, "\t", draftLength1)
-	print("{}\t".format(inFileName2), ">", intMinLen - 1 ,"bp:\t", contigCount2, "\t", "%.0f" % avgContig2, "\t", contigN50_2, "\t", contigMax2, "\t", draftLength2)
+	print("Assembly File\tMinimum Contig Length:\tcontigCount\tavgContig\tN50\ttopContig\tsecContig\ttertContig\tdraftLength")
+	print("{}\t".format(inFileName1), ">", intMinLen - 1 ,"bp:\t", contigCount1, "\t", "%.0f" % avgContig1, "\t", contigN50_1, "\t", contigMax1, "\t", contigSecond1, "\t", contigThird1, "\t", draftLength1)
+	print("{}\t".format(inFileName2), ">", intMinLen - 1 ,"bp:\t", contigCount2, "\t", "%.0f" % avgContig2, "\t", contigN50_2, "\t", contigMax2, "\t", contigSecond2, "\t", contigThird2, "\t", draftLength2)
 elif( args.format == 'brief' or args.format == 'b' ):
 	print("Assembly\tcontigCount\tavgContig\tN50\tmaxContig")
 	print(inFileName1 + "\t" + str(contigCount1) + "\t" + str("%.0f" % avgContig1) + "\t" + str(contigN50_1) + "\t" + str(contigMax1))
 	print(inFileName2 + "\t" + str(contigCount2) + "\t" + str("%.0f" % avgContig2) + "\t" + str(contigN50_2) + "\t" + str(contigMax2))
 
 	
-	
+### Judgement 
 
+goingToHel = 0
+
+if(contigCount1 > contigCount2):
+	goingToHel = 1
+elif(contigCount1 < contigCount2):
+	goingToHel = 2
+else:
+	if(contigMax1 < contigMax2):
+		goingToHel = 1
+	elif(contigMax1 > contigMax2):
+		goingToHel = 2
+	elif(contigSecond1 < contigSecond2):
+		goingToHel = 1
+	elif(contigSecond1 > contigSecond2):
+		goingToHel = 2
+	elif(contigThird1 < contigThird2):
+		goingToHel = 1
+	elif(contigThird2 > contigThird2):
+		goingToHel = 2
+	elif(contigFourth1 < contigFourth2):
+		goingToHel = 1
+	elif(contigFourth1 > contigFourth2):
+		goingToHel = 2
+
+if(goingToHel == 1):
+	os.system("mv -v {} {}".format(args.filename1.name, helHeim))
+elif(goingToHel == 2):
+	os.system("mv -v {} {}".format(args.filename2.name, helHeim))
+else:
+	os.system("mv -v {} {}".format(args.filename1.name, helHeim))
+	
