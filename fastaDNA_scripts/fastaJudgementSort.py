@@ -125,6 +125,8 @@ for line in filehandle1:
 			contigID = contigID.replace('_(paired)', '')
 		if(re.search('R1_001_', contigID)):
 			contigID = contigID.replace('R1_001_', '')
+		else:
+			contigID = contigID
 		#draftContigs.append(contigID)
 		idCount1 = idCount1 + 1
 		#print(contigID)
@@ -132,6 +134,10 @@ for line in filehandle1:
 		contigStr = contigStr + line.strip()
 
 draftGenome1[contigID] = contigStr
+
+
+## reset contigStr
+contigStr = ""
 
 ## Close input file1
 args.filename1.close()
@@ -150,6 +156,8 @@ for line in filehandle2:
 			contigID = contigID.replace('_(paired)', '')
 		if(re.search('R1_001_', contigID)):
 			contigID = contigID.replace('R1_001_', '')
+		else:
+			contigID = contigID
 		#draftContigs.append(contigID)
 		idCount2 = idCount2 + 1
 		#print(contigID)
@@ -166,13 +174,13 @@ args.filename2.close()
 for contigKey in draftGenome1:
 	if( len(draftGenome1[contigKey]) > (intMinLen - 1) ):
 		contigLengths1[contigKey] = len(draftGenome1[contigKey])
-		##print(contigKey + " => " + str(contigLengths1[contigKey]))
+		#print(contigKey + " => " + str(contigLengths1[contigKey]))
 
 ## obtain contig lengths for file2
 for contigKey in draftGenome2:
 	if( len(draftGenome2[contigKey]) > (intMinLen - 1) ):
 		contigLengths2[contigKey] = len(draftGenome2[contigKey])
-		##print(contigKey + " => " + str(contigLengths2[contigKey]))
+		#print(contigKey + " => " + str(contigLengths2[contigKey]))
 	
 
 ##### Obtain contigMax, contigCount, and draftLength
@@ -185,6 +193,7 @@ for contigID in sorted(contigLengths1, key=contigLengths1.__getitem__, reverse=T
 	if( contigLengths1[contigID] > (intMinLen - 1) ):
 		if(count == 0):
 			contigMax1 = contigLengths1[contigID]
+			print(contigMax1)
 			top = 1
 		if(count == 1):
 			contigSecond1 = contigLengths1[contigID]
@@ -206,6 +215,7 @@ for contigID in sorted(contigLengths2, key=contigLengths2.__getitem__, reverse=T
 	if( contigLengths2[contigID] > (intMinLen - 1) ):
 		if(count == 0):
 			contigMax2 = contigLengths2[contigID]
+			print(contigMax2)
 			top = 1
 		if(count == 1):
 			contigSecond2 = contigLengths2[contigID]
