@@ -242,7 +242,7 @@ cumulativeLength = 0;
 for contigID in sorted(contigLengths2, key=contigLengths2.__getitem__, reverse=True):
 	if( contigLengths2[contigID] > (intMinLen - 1) ):
 		cumulativeLength = cumulativeLength + contigLengths2[contigID]
-	if(cumulativeLength > (draftLength1/2)):
+	if(cumulativeLength > (draftLength2/2)):
 		contigN50_2 = contigLengths2[contigID]
 		break
 
