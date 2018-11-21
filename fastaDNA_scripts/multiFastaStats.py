@@ -42,6 +42,8 @@ parser.add_argument("--format", default='brief', type = lambda s : s.lower(), ch
 #GenomeDrafts = []
 #GenomeContigs = []
 
+inFileName = []
+
 draftContigs = []
 draftGenome = {}
 contigLengths = {}
@@ -62,13 +64,17 @@ intMinLen = args.minLength
 
 idxFile = 0
 
+##### Begin multiple input file loop #####
+
 for filehandle in args.filename:
-	inFileName = getIsolateID(filehandle.name)
+	inFileName.append(getIsolateID(filehandle.name))
 	
 	#draftContigs = []
 	#draftGenome = {}
 	#contigLengths = {}
 	
+	### First inner loop to read input file lines
+
 	for line in filehandle:
 		if(re.search(r'^>', line)):
 			if(idCount > 0):
@@ -86,23 +92,26 @@ for filehandle in args.filename:
 		elif(re.search(r'^(A|T|G|C|U|N)+', line)):
 			contigStr = contigStr + line.strip()
 
+
 	draftGenome[contigID] = contigStr
 
-	#GenomeDrafts.append(draftGenome)
+	### End first inner loop
 
 	## Close input file
 	filehandle.close()
+
+	### Second inner loop to populate dict of contig lengths
 
 	for contigKey in draftGenome:
 		if( len(draftGenome[contigKey]) > (intMinLen - 1) ):
 			contigLengths[contigKey] = len(draftGenome[contigKey])
 			##print(contigKey + " => " + str(contigLengths[contigKey]))
 
-	#GenomeContigs.append(contigLengths)	
+	### End second innner loop
 
 	count = 0
 
-	### Loop to find longest contig and contig count given length > intMinLen
+	### Third inner loop to find longest contig and contig count given length > intMinLen
 
 	for contigID in sorted(contigLengths, key=contigLengths.__getitem__, reverse=True):
 		if( contigLengths[contigID] > (intMinLen - 1) ):
@@ -112,16 +121,18 @@ for filehandle in args.filename:
 			count = count + 1
 			draftLength = draftLength + contigLengths[contigID]
 
+	### End third inner loop
+
 	contigCount.append(count)
 	avgContig = draftLength/contigCount
 
 	### to compute N50, find the contig that 'resides' at 1/2 of draftLength
-
-	#contigSortGenome = sorted(draftGenome, key=contigLengths.__getitem__)
 	
 	drLength = 0
 	cumulativeLength = 0;
 
+	### Fourth inner loop to calculate N50
+	
 	for contigID in sorted(contigLengths, key=contigLengths.__getitem__, reverse=True):
 		if( contigLengths[contigID] > (intMinLen - 1) ):
 			cumulativeLength = cumulativeLength + contigLengths[contigID]
@@ -129,21 +140,31 @@ for filehandle in args.filename:
 			contigN50.append(contigLengths[contigID])
 			break
 	
+	### End fourth inner loop
+
+	draftContigs = []
+	draftGenome = {}
+	contigLengths = {}
+	idCount = 0
+	contigID = ""
+	contigStr = "" 
+
 	idxFile = idxFile + 1
 
-	
+##### End of multiple input file loop #####	
 
-
-if ( args.format == 'verbose' or args.format == 'v' ):
-	print("Assembly File\tMinimum Contig Length:\tcontigCount\tavgContig\tN50\tmaxContig\tdraftLength")
-	print("{}\t".format(inFileName), ">", intMinLen - 1 ,"bp:\t", contigCount, "\t", "%.0f" % avgContig, "\t", contigN50, "\t", contigMax, "\t", draftLength)
-elif( args.format == 'brief' or args.format == 'b' ):
-	print("Assembly\tcontigCount\tavgContig\tN50\tmaxContig")
-	print(inFileName + "\t" + str(contigCount) + "\t" + str("%.0f" % avgContig) + "\t" + str(contigN50) + "\t" + str(contigMax))
-elif ( args.format == 'tsv' or args.format == 't'):
-	print(str(contigCount) + "\t" + str("%.0f" % avgContig) + "\t" + str(contigN50) + "\t" + str(contigMax))
-elif ( args.format == 'csv' or args.format == 'c' ):
-	print(inFileName + "," + str(contigCount) + "," + str("%.0f" % avgContig) + "," + str(contigN50) + "," + str(contigMax))
+for idx in range(len(inFileName)):
+	if ( args.format == 'verbose' or args.format == 'v' ):
+		print("Assembly File\tMinimum Contig Length:\tcontigCount\tavgContig\tN50\tmaxContig\tdraftLength")
+		print("{}\t".format(inFileName[idx]), ">", intMinLen - 1 ,"bp:\t", contigCount[idx], "\t", "%.0f" % avgContig[idx], "\t", contigN50[idx], "\t", contigMax[idx], "\t", draftLength)
+	elif( args.format == 'brief' or args.format == 'b' ):
+		print("Assembly\tcontigCount\tavgContig\tN50\tmaxContig")
+		print(inFileName[idx] + "\t" + str(contigCount[idx]) + "\t" + str("%.0f" % avgContig[idx]) + "\t" + str(contigN50[idx]) + "\t" + str(contigMax[idx]))
+	elif ( args.format == 'tsv' or args.format == 't'):
+		print(str(contigCount[idx]) + "\t" + str("%.0f" % avgContig[idx]) + "\t" + str(contigN50[idx]) + "\t" + str(contigMax[idx]))
+	elif ( args.format == 'csv' or args.format == 'c' ):
+		print(inFileName[idx] + "," + str(contigCount[idx]) + "," + str("%.0f" % avgContig[idx]) + "," + str(contigN50[idx]) + "," + str(contigMax[idx]))
+	idx = idx + 1
 
 	
 contigCount = 0
@@ -152,10 +173,4 @@ contigMax = 0
 avgContig = 0
 draftLength = 0
 	
-	draftContigs = []
-	draftGenome = {}
-	contigLengths = {}
-	idCount = 0
-	contigID = ""
-	contigStr = "" 
 
