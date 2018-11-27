@@ -30,10 +30,26 @@ def getIsolateID(filePathString):
 		isolateString = re.split(pattern='\.', string=splitStr[0])
 	return isolateString[0]
 
-parser = argparse.ArgumentParser(description='output contig count, average contig length, N50 contig, and maximum contig length for input.assembly.fasta', usage="simpleFastaStats.py filepath/input.assembly.fasta --minLength 500(default) --format [brief(default)|verbose|tsv|csv]")
+## Function: Checks existence of --outDir
+def readable_dir(prospective_dir):
+	if not os.path.isdir(prospective_dir):
+    		raise argparse.ArgumentTypeError("readable_dir:{0} is not a valid path".format(prospective_dir))
+	if os.access(prospective_dir, os.R_OK):
+		if( not prospective_dir.endswith("/") ):
+			prospective_dir = prospective_dir + "/"
+		return prospective_dir
+	else:
+		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
+
+
+parser = argparse.ArgumentParser(description='compare average contig and contig counts among multiple .fasta, move lower quality assemblies to Hel', usage="multiFastaContigAvgJudgement.py filepath/input.assembly*.fasta --minLength 500(default) --format [brief(default)|verbose|tsv|csv]")
 
 parser.add_argument("filename",type=ext_check('.fasta', argparse.FileType('r')), nargs='+')
 
+## output folder
+parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='store')
+
+## minimum contig length
 parser.add_argument("--minLength", '-min', default='500', type=int)
 
 parser.add_argument("--format", default='brief', type = lambda s : s.lower(), choices=['tsv', 'csv', 'brief', 'verbose', 'c', 's', 'b', 'v'])
@@ -60,9 +76,25 @@ avgContig = []
 
 args = parser.parse_args()
 
+helHeim = args.outDir
+
 intMinLen = args.minLength
 
 idxFile = 0
+
+##### Begin logging #####
+
+logger = logging.getLogger("multiFastaContigAvgJudgement.py")
+logger.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+if(len(args.filename) < 2):
+	print("Input Error: Two or more .fasta files required!")
+	sys.exit(1)
 
 ##### Begin multiple input file loop #####
 
@@ -168,33 +200,21 @@ for idx in range(len(inFileName)):
 
 	
 ### Judgement Day ### 
+### All assembly files are sent to Hel except for theWorthy ###
 
-goingToHel = []
+## index of the file with optimal assembly metrics
+theWorthy = 0
 
-helCount = 0
-
-theWorthy = 1
-
-for helCount in range(len(inFileName)):
-	goingToHel.append(helCount)
-	helCount = helCount + 1
-
-helCount = o
-
-for helCount in range( len(inFileName) - 1 ):
-	if(avgContig[helCount] > avgContig[helCount + 1]):
+for helCount in range( 1, len(inFileName) ):
+	if(avgContig[helCount] > avgContig[theWorthy]):
 		theWorthy = helCount
-	elif(contigCount[helCount] > contigCount[helCount + 1]):
-		theWorthy = helCount + 1
-
-
+		##print(theWorthy, " ", avgContig[helCount], " ", avgContig[theWorthy])
+	elif(contigCount[helCount] < contigCount[theWorthy]):
+		theWorthy = helCount
+			
 idx = 0
 
-for idx
+for idx in range( len(inFileName) ):
 	if(idx != theWorthy):
-		os.system("mv -v {} {}".format(args.filename1.name, helHeim))
-	
-	
-
-	
+		os.system("mv -v {} {}".format(args.filename[idx].name, helHeim))
 
