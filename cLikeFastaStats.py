@@ -139,8 +139,8 @@ if ( args.format == 'verbose' or args.format == 'v' ):
 	print("Assembly File\tMinimum Contig Length:\tcontigCount\tavgContig\tN75\tN50\tN25\tmaxContig\tdraftLength")
 	print("{}\t".format(inFileName), ">", intMinLen - 1 ,"bp:\t", contigCount, "\t", "%.0f" % avgContig, "\t", contigN75, "\t", contigN50, "\t", contigN25, "\t", contigMax, "\t", draftLength)
 elif( args.format == 'brief' or args.format == 'b' ):
-	print("Assembly\tcontigCount\tN75\tN50\tN25\tmaxContig")
-	print(inFileName + "\t" + str(contigCount) + "\t" + str(contigN75) + "\t" + str(contigN50) + "\t" + str(contigN25) + "\t" + str(contigMax))
+	print("Assembly\tcontigCount\tN75\tN50\tN25\tmaxContig\tdraftLength")
+	print(inFileName + "\t" + str(contigCount) + "\t" + str(contigN75) + "\t" + str(contigN50) + "\t" + str(contigN25) + "\t" + str(contigMax) + "\t" + str(draftLength))
 elif ( args.format == 'tsv' or args.format == 't'):
 	print(str(contigCount) + "\t" + str(contigN75) + "\t" + str(contigN50) + "\t" + str(contigN25) + "\t" + str(contigMax))
 elif ( args.format == 'clcstyle' or args.format == 'l'):
