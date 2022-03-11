@@ -1,7 +1,10 @@
 
 ## NGS_Multi_Heal
 NGS_Multi_Heal simplifies quality analysis, trimming, and healing of paired-end reads
-comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq files.
+comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq files.  
+Two scripts in this package, fastxTrimmer_R1andR2.py and windowQualPrinseqLite_R1andR2.py,
+were employed in read-healing analysis in Wagner et al. (2021) PeerJ. 9:e12446 
+(https://doi.org/10.7717/peerj.12446)
 
 ## Preprocessing with NGS_Multi_Heal
 * Trimming 3-prime ends of reads prior to high-quality Single Nucleotide Polymorphisms (hqSNPs) analysis
