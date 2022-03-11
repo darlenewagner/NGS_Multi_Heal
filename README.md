@@ -17,7 +17,7 @@ comprised of forward (R1) and reverse (R2) reads in gzipped or unzipped fastq fi
 * prinseq 1.20.X: [sourceforge.net/projects/prinseq](https://sourceforge.net/projects/prinseq/files/standalone/)
 * CG-Pipeline Perl: [github.com/lskatz](https://github.com/lskatz/CG-Pipeline)
 
-## Example Preprocessing for hqSNPs
+## Example Preprocessing of reads for hqSNPs
 ### Method I. Uniform 3-prime trim for forward and reverse reads 
 ##### Trim 3' ends of forward and reverse reads by 5 and variable (XX) base pair positions, respectively:
 ```python fastxTrimmer_R1andR2.py reads_R1_001.fastq reads_R2_001.fastq --trimF 5 --trimR XX -outDir trimmed/```
