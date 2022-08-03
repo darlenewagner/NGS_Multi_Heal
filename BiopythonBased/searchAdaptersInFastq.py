@@ -3,7 +3,7 @@ import argparse, logging, warnings
 from Bio import SeqIO
 from Bio.SeqIO.QualityIO import FastqGeneralIterator
 import numpy as np
-import pandas as pd
+#import pandas as pd
 #from collections import defaultdict
 
 def ext_check(expected_ext, openner):
@@ -55,7 +55,7 @@ while idx < len(matrixAdapters):
 myFastq = open(args.filename.name, "r")
 
 idx = 1
-iter = 0
+readCount = 0
 
 # to quantify forward (R1), reverse (R2) strand bias
 countStrand = {'R1' : 0, 'R2' : 0}
@@ -84,7 +84,7 @@ for record in SeqIO.parse(myFastq, "fastq"):
                                 elif(args.outputType == 'C'):
                                         countAdapters[str(matrixAdapters[idx][0])] = countAdapters[str(matrixAdapters[idx][0])] + 1
                 idx = idx + 1
-        iter = iter + 1
+        readCount = readCount + 1
         
 readsWithAdapters.close()
 
@@ -94,6 +94,10 @@ if(args.outputType == 'R'):
         print("%s: %i, %s: %i" % ("R1", countStrand['R1'], "R2", countStrand['R2']))
 if(args.outputType == 'C'):
         ## output adapter occurrence counts to standard output
+        adaptSum = 0
         print("Adapter_Name, Count")
         for k in countAdapters.keys():
                 print(k + ", " + str(countAdapters[k]))
+                adaptSum = adaptSum + countAdapters[k]
+        print("with_adapters, " + str(adaptSum))
+        print("proportion, " + str(adaptSum/readCount))
