@@ -8,11 +8,11 @@ import re
 import csv
 import numbers
 
-## A command-line script for trimming read pairs by different offsets at 3' ends
-## Not dependent upon Bpipe, Java, or Perl
-## input: filePath/forwardReads.fastq filePath/reverseReads.fastq --trimF int --trimR int
+## A command-line script for trimming read pairs by different offsets at 3' ends.  Enables adaptive trim based upon 
+## decreases in read length.
+## input: filePath/forwardReads.fastq filePath/reverseReads.fastq --trimF int --trimR int --qualityStats Y/N
 ## output: trimmed reads and log files in output folder 'TrimByPython/forwardReads.cleaned.fastq/'
-### requires >= FASTX-Toolkit-0.0.13, >= prinseq-lite.pl 0.20.x, and >= perl/5.22.x
+### requires >= FASTX-Toolkit-0.0.13
 
 def readable_dir(prospective_dir):
 	if not os.path.isdir(prospective_dir):
@@ -81,8 +81,9 @@ logger.info("Parameters loaded.")
 
 ## outFolder = 'TrimByPython/'
 
-intTrimFwd = args.trimF
-intTrimRev = args.trimR
+intTrimFwd = int(args.trimF)
+intTrimRev = int(args.trimR)
+
 
 forward = args.forward.name
 reverse = args.reverse.name
@@ -135,23 +136,24 @@ logger.info("Output folder validated/created.")
 
 ## requires csv module
 def findAvgQual(inFile):
-	qualFile = open(inFile, 'r')
-	fileText = csv.reader(qualFile, delimiter='\t')
-	tableText = [row for row in fileText]
-	#print(tableText[0])
-	line = 1
-	readCount = 0
-	minRead = 0
-	while line < len(tableText):
-		currReadCount = int(tableText[line][1])
-		if(currReadCount < readCount):
+        qualFile = open(inFile, 'r')
+        fileText = csv.reader(qualFile, delimiter='\t')
+        tableText = [row for row in fileText]
+        #print(tableText[0])
+        line = 1
+        readCount = 0
+        minRead = 0
+        while line < len(tableText):
+                currReadCount = int(tableText[line][1])
+                if(currReadCount < readCount):
 			#print(tableText[line][0] + " " + tableText[line][1])
-			minRead = int(tableText[line][0]) - 1
-			break
-		readCount = currReadCount
-		line = line + 1
-	qualFile.close()
-	return(minRead)
+                        minRead = int(tableText[line][0]) - 1
+                        break
+                readCount = currReadCount
+                line = line + 1
+        #print(currReadCount, " ", readCount, " ", minRead)
+        qualFile.close()
+        return(minRead)
 
 gunzipForward = re.sub(r'\.gz$', '', forward)
 gunzipReverse = re.sub(r'\.gz$', '', reverse)
@@ -167,15 +169,18 @@ if(re.search(r'\.fastq$', forward, flags=re.IGNORECASE) and re.search(r'\.fastq$
 	outputReverse = newOutputFolder + "/" + outputFileString + "_R2_001.cleaned.fastq.gz"
 	
 	if(args.qualityStats == 'Y'):
-		logger.info("Beginning fastx_quality_stats")
-		os.system("fastx_quality_stats -Q33 -i {} -o {}".format(forward, qualForward))
-		os.system("fastx_quality_stats -Q33 -i {} -o {}".format(reverse, qualReverse))
-		fwdMinRead = findAvgQual(qualForward)
-		revMinRead = findAvgQual(qualReverse)
-		if(intTrimFwd > (fwdMinRead - 5)):
-			intTrimFwd = fwdMinRead - 5
-		if(intTrimRev > (revMinRead - 5)):
-			intTrimRev = revMinRead - 5
+                logger.info("Beginning fastx_quality_stats")
+                os.system("fastx_quality_stats -Q33 -i {} -o {}".format(forward, qualForward))
+                os.system("fastx_quality_stats -Q33 -i {} -o {}".format(reverse, qualReverse))
+                #os.system("head -2 {}".format(qualForward))
+                fwdMinRead = findAvgQual(qualForward)
+                revMinRead = findAvgQual(qualReverse)
+                if(intTrimFwd < (fwdMinRead - 5)):
+                        intTrimFwd = fwdMinRead
+                        #print(intTrimFwd)
+                if(intTrimRev < (revMinRead - 5)):
+                        intTrimRev = revMinRead
+                        #print(intTrimRev)
 	else:
 		if(intTrimFwd > 30):
 			intTrimFwd = 30
