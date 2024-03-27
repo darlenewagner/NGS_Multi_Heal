@@ -9,7 +9,7 @@ import csv
 import numbers
 
 ## A command-line script for trimming read pairs by different offsets at 3' ends.  Enables adaptive trim based upon 
-## decreases in read length.
+## decreases in read length.  Does not trim adapters, at least not yet.
 ## input: filePath/forwardReads.fastq filePath/reverseReads.fastq --trimF int --trimR int --qualityStats Y/N
 ## output: trimmed reads and log files in output folder 'TrimByPython/forwardReads.cleaned.fastq/'
 ### requires >= FASTX-Toolkit-0.0.13
