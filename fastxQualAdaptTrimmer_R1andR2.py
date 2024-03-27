@@ -3,6 +3,8 @@
 import sys
 import os
 import argparse
+from argparse import ArgumentTypeError, ArgumentParser
+from pathlib import Path
 import logging
 import re
 import csv
@@ -13,6 +15,13 @@ import numbers
 ## input: filePath/forwardReads.fastq filePath/reverseReads.fastq --trimF int --trimR int --qualityStats Y/N
 ## output: trimmed reads and log files in output folder 'TrimByPython/forwardReads.cleaned.fastq/'
 ### requires >= FASTX-Toolkit-0.0.13
+
+## Check input file for zero-length
+def check_for_empty(fastq_file):
+        path1 = Path(fastq_file)
+        if(path1.stat().st_size == 0):
+            raise ArgumentTypeError(f'{fastq_file} cannot be empty')
+    
 
 def readable_dir(prospective_dir):
 	if not os.path.isdir(prospective_dir):
@@ -37,7 +46,7 @@ def bandwidth_type(x):
 logger = logging.getLogger("fastxQualAdaptTrimmer_R1andR2.py")
 logger.setLevel(logging.INFO)
 
-parser = argparse.ArgumentParser(description="trimming forward reads by -t1 and reverse reads by -t2", usage="python fastxTrimmer_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq -t1 X -t2 Y --outDir outputPath")
+parser = argparse.ArgumentParser(description="trimming forward reads by -t1 and reverse reads by -t2", usage="python fastxQualAdaptTrimmer_R1andR2.py inputPath/reads_R1_001.fastq inputPath/reads_R2_001.fastq -t1 X -t2 Y --outDir outputPath")
 
 ## Trim from 3-prime
 parser.add_argument('--trimF', '-t1', required=True, type=bandwidth_type, help="Trim from 3-prim of R1 (0 - 90 bp).")
@@ -87,6 +96,10 @@ intTrimRev = int(args.trimR)
 
 forward = args.forward.name
 reverse = args.reverse.name
+
+## Throw exception for zero-length files
+check_for_empty(args.forward.name)
+check_for_empty(args.reverse.name)
 
 ## two pipelines, one for fastq input, the other for fastq.gz
 
@@ -277,8 +290,8 @@ elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fast
 	os.system("rm -v {}".format(gunzipForward))
 	os.system("rm -v {}".format(gunzipReverse))
 else:
-	logger.warn("Filetype - R1 {} R2 {} must both end in .fastq".format(forward, reverse))
-	logger.warn("Filetype - R1 {} and R2 {} must both end in .fastq.gz".format(forward, reverse))
+	logger.warning("Filetype - R1 {} R2 {} must both end in .fastq".format(forward, reverse))
+	logger.warning("Filetype - R1 {} and R2 {} must both end in .fastq.gz".format(forward, reverse))
 	logger.exception("Input files must be FASTQ ending in either .fastq or .fastq.gz")
 
 
