@@ -3,6 +3,8 @@
 import sys
 import os
 import argparse
+from argparse import ArgumentTypeError, ArgumentParser
+from pathlib import Path
 import logging
 import re
 
@@ -23,7 +25,10 @@ def readable_dir(prospective_dir):
 		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
 ## check_for_empty throws an exception when attempting to read empty files
-
+def check_for_empty(fastq_file):
+        path1 = Path(fastq_file)
+        if(path1.stat().st_size == 0):
+            raise ArgumentTypeError(f'{fastq_file} cannot be empty')
 
 ## checking that 3-prime --trimF/trimR parameters are between 0 and 25, inclusive
 def bandwidth_type(x):
@@ -80,6 +85,10 @@ intTrimRev = args.trimR
 
 forward = args.forward.name
 reverse = args.reverse.name
+
+## Throw exception for zero-length files
+check_for_empty(args.forward.name)
+check_for_empty(args.reverse.name)
 
 ## two pipelines, one for fastq input, the other for fastq.gz
 
