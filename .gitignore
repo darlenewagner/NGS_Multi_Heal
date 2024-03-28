@@ -1,0 +1,3 @@
+#Ignore these directories:
+ExampleData/
+test_Campy_trim/
