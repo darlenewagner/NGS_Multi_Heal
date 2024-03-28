@@ -22,6 +22,9 @@ def readable_dir(prospective_dir):
 	else:
 		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
+## check_for_empty throws an exception when attempting to read empty files
+
+
 ## checking that 3-prime --trimF/trimR parameters are between 0 and 25, inclusive
 def bandwidth_type(x):
 	xx = int(x)
