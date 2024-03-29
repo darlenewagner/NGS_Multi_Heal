@@ -24,6 +24,17 @@ def readable_dir(prospective_dir):
 	else:
 		raise argparse.ArgumentTypeError("readable_dir:{0} is not a readable dir".format(prospective_dir))
 
+## Check names of input files for .fastq(.gz) or .fq(.gz) suffix
+def ext_check(expected_ext1, expected_ext2, expected_ext3, expected_ext4, openner):
+	def extension(filename):
+		if not (filename.lower().endswith(expected_ext1) or \
+                        filename.lower().endswith(expected_ext2) or \
+                        filename.lower().endswith(expected_ext3) or \
+                        filename.lower().endswith(expected_ext4)):
+			raise ValueError()
+		return openner(filename)
+	return extension
+        
 ## check_for_empty throws an exception when attempting to read empty files
 def check_for_empty(fastq_file):
         path1 = Path(fastq_file)
@@ -51,8 +62,8 @@ parser.add_argument('--trimR', '-t2', required=True, type=bandwidth_type, help="
 parser.add_argument('--trim_5prime', default='N', choices=['Y', 'N'], help="Trim 1 to 3 bp from 5-from of both R1 and R2 reads.")
 parser.add_argument('--firstPos', type=int, default=1, choices=range(1,3), help="Number of 5-prime positions to trim.")
 
-parser.add_argument('forward', type=argparse.FileType('r'))
-parser.add_argument('reverse', type=argparse.FileType('r'))
+parser.add_argument('forward', type=ext_check('.fastq', 'fastq.gz', 'fq', 'fq.gz', argparse.FileType('r')))
+parser.add_argument('reverse', type=ext_check('.fastq', 'fastq.gz', 'fq', 'fq.gz', argparse.FileType('r')))
 
 ## output folder
 parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='store')
@@ -139,7 +150,7 @@ logger.info("Output folder validated/created.")
 gunzipForward = re.sub(r'\.gz$', '', forward)
 gunzipReverse = re.sub(r'\.gz$', '', reverse)
 
-if(re.search(r'\.fastq$', forward, flags=re.IGNORECASE) and re.search(r'\.fastq$', reverse, flags=re.IGNORECASE)):
+if(re.search(r'\.f(ast)?q$', forward, flags=re.IGNORECASE) and re.search(r'\.f(ast)?q$', reverse, flags=re.IGNORECASE)):
 	#print("Nice files for", newOutputFolder)
 	outputForward = newOutputFolder + "/" + outputFileString + "_R1_001.cleaned.fastq.gz"
 	outputReverse = newOutputFolder + "/" + outputFileString + "_R2_001.cleaned.fastq.gz"
@@ -169,7 +180,7 @@ if(re.search(r'\.fastq$', forward, flags=re.IGNORECASE) and re.search(r'\.fastq$
 		outputLog = newOutputFolder + "/parameters.log"
 		os.system("echo 'fastx_trimmer: Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(intTrimFwd, intTrimRev, outputLog))
 
-elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fastq.gz', reverse, flags=re.IGNORECASE)):
+elif(re.search(r'\.f(ast)?q.gz', forward, flags=re.IGNORECASE) and re.search(r'\.f(ast)?q.gz', reverse, flags=re.IGNORECASE)):
 	outputForward = newOutputFolder + "/" + outputFileString + "_R1_001.cleaned.fastq.gz"
 	outputReverse = newOutputFolder + "/" + outputFileString + "_R2_001.cleaned.fastq.gz"
 
@@ -215,8 +226,8 @@ elif(re.search('\.fastq.gz', forward, flags=re.IGNORECASE) and re.search('\.fast
 	os.system("rm -v {}".format(gunzipForward))
 	os.system("rm -v {}".format(gunzipReverse))
 else:
-	logger.warn("Filetype - R1 {} R2 {} must both end in .fastq".format(forward, reverse))
-	logger.warn("Filetype - R1 {} and R2 {} must both end in .fastq.gz".format(forward, reverse))
+	logger.warning("Filetype - R1 {} R2 {} must both end in .fastq".format(forward, reverse))
+	logger.warning("Filetype - R1 {} and R2 {} must both end in .fastq.gz".format(forward, reverse))
 	logger.exception("Input files must be FASTQ ending in either .fastq or .fastq.gz")
 
 
