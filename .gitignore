@@ -1,3 +1,9 @@
 #Ignore these directories:
 ExampleData/
 test_Campy_trim/
+BiopythonBased/bin/
+BiopythonBased/include/
+BiopythonBased/lib/
+BiopythonBased/lib64
+
+

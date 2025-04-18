@@ -35,11 +35,15 @@ iter = 0
 myFastq = open(args.filename[0].name, "r")
 
 for record in SeqIO.parse(myFastq, "fastq"):
+        #print("%s,%i,%0.2f," % (record.description, len(record.seq), statistics.mean(record.letter_annotations["phred_quality"])))
         if(iter % 2 == 0):
                 print("%s,%i,%0.2f," % (record.description, len(record.seq), statistics.mean(record.letter_annotations["phred_quality"])), end="")
         elif(iter % 2 == 1):
-                strand = record.description.split(" ")
-                print("%s,%i,%0.2f" % (strand[1], len(record.seq), statistics.mean(record.letter_annotations["phred_quality"])))
+                if(" " in record.description):
+                        strand = record.description.split(" ")
+                        print("%s,%i,%0.2f" % (strand[1], len(record.seq), statistics.mean(record.letter_annotations["phred_quality"])))
+                else:
+                        print("%i,%0.2f" % ( len(record.seq), statistics.mean(record.letter_annotations["phred_quality"])))
         iter = iter + 1
 
 
