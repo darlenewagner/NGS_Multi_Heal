@@ -6,4 +6,10 @@ BiopythonBased/include/
 BiopythonBased/lib/
 BiopythonBased/lib64
 
-
+#Ignore these files:
+my_fastx_toolkit.sif
+my_prinseq.sif
+my_perl.sif
+fastx_toolkit*
+perl:5.32
+prinseq*
