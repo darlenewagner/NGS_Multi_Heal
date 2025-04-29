@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+mkdir $PWD/TrimByPython
+
 singularity pull https://depot.galaxyproject.org/singularity/perl:5.32
 
 singularity build my_perl.sif perl\:5.32

@@ -1,5 +1,6 @@
 #Ignore these directories:
 ExampleData/
+TrimByPython/
 test_Campy_trim/
 BiopythonBased/bin/
 BiopythonBased/include/

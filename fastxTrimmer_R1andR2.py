@@ -160,25 +160,25 @@ if(re.search(r'\.f(ast)?q$', forward, flags=re.IGNORECASE) and re.search(r'\.f(a
 		logger.info("Beginning 5-prime trim")
 		interForward = newOutputFolder + "/prT_" + outputFileString + "_1.fastq" 
 		interReverse = newOutputFolder + "/prT_" + outputFileString + "_2.fastq"
-		os.system("fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, forward, interForward))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, forward, interForward))
 		logger.info("forward (R1) fastq 5-prime trimming complete")
-		os.system("fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, reverse, interReverse))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, reverse, interReverse))
 		logger.info("reverse (R2) fastq 5-prime trimming complete")
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, interForward, outputForward))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, interForward, outputForward))
 		logger.info("forward (R1) fastq 3-prime trim complete")
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, interReverse, outputReverse))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, interReverse, outputReverse))
 		logger.info("reverse (R2) fastq 3-prime trim complete")
 		os.system("rm -v {}".format(interForward))
 		os.system("rm -v {}".format(interReverse))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'fastx_trimmer: All reads trimmed {} bp at 5-prime; Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(int5prime, intTrimFwd, intTrimRev, outputLog))
+		os.system("echo 'singularity exec my_fastx_toolkit.sif fastx_trimmer: All reads trimmed {} bp at 5-prime; Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(int5prime, intTrimFwd, intTrimRev, outputLog))
 	else:	
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, forward, outputForward))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, forward, outputForward))
 		logger.info("forward (R1) fastq 3-prime trimming complete")
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, reverse, outputReverse))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, reverse, outputReverse))
 		logger.info("reverse (R2) fastq 3-prime trimming complete")
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'fastx_trimmer: Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(intTrimFwd, intTrimRev, outputLog))
+		os.system("echo 'singularity exec my_fastx_toolkit.sif fastx_trimmer: Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(intTrimFwd, intTrimRev, outputLog))
 
 elif(re.search(r'\.f(ast)?q.gz', forward, flags=re.IGNORECASE) and re.search(r'\.f(ast)?q.gz', reverse, flags=re.IGNORECASE)):
 	outputForward = newOutputFolder + "/" + outputFileString + "_R1_001.cleaned.fastq.gz"
@@ -190,37 +190,37 @@ elif(re.search(r'\.f(ast)?q.gz', forward, flags=re.IGNORECASE) and re.search(r'\
 		os.system("gunzip -c {} > {}".format(forward, gunzipForward))
 		logger.info("forward (R1) gunzip complete; start trimming")
 		interForward = newOutputFolder + "/prT_" + outputFileString + "_1.fastq"
-		os.system("fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, gunzipForward, interForward))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, gunzipForward, interForward))
 		logger.info("forward (R1) fastq 5-prime trimming complete")
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, interForward, outputForward))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, interForward, outputForward))
 		logger.info("forward (R1) fastq 3-prime trimming complete")
 		logger.info("forward (R1) fastq file trim complete")
 		logger.info("gunzip {}".format(reverse))
 		os.system("gunzip -c {} > {}".format(reverse, gunzipReverse))
 		logger.info("reverse (R2) gunzip complete; start trimming")
 		interReverse = newOutputFolder + "/prT_" + outputFileString + "_2.fastq"
-		os.system("fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, gunzipReverse, interReverse))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -f {} -i {} -o {}".format(int5prime, gunzipReverse, interReverse))
 		logger.info("reverse (R2) fastq 5-prime trimming complete")
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, interReverse, outputReverse))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, interReverse, outputReverse))
 		logger.info("reverse (R2) fastq 3-prime trimming complete")
 		logger.info("reverse (R2) fastq file trim complete")
 		os.system("rm -v {}".format(interForward))
 		os.system("rm -v {}".format(interReverse))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'fastx_trimmer: All reads trimmed {} bp at 5-prime; Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(int5prime, intTrimFwd, intTrimRev, outputLog))
+		os.system("echo 'singularity exec my_fastx_toolkit.sif fastx_trimmer: All reads trimmed {} bp at 5-prime; Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(int5prime, intTrimFwd, intTrimRev, outputLog))
 		logger.info("reverse (R2) fastq file trimming complete")
 	else:
 		logger.info("gunzip {}".format(forward))
 		os.system("gunzip -c {} > {}".format(forward, gunzipForward))
 		logger.info("forward (R1) gunzip complete; start trimming")
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, gunzipForward, outputForward))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimFwd, gunzipForward, outputForward))
 		logger.info("forward (R1) fastq file trim complete")
 		logger.info("gunzip {}".format(reverse))
 		os.system("gunzip -c {} > {}".format(reverse, gunzipReverse))
 		logger.info("reverse (R2) gunzip complete; start trimming")
-		os.system("fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, gunzipReverse, outputReverse))
+		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, gunzipReverse, outputReverse))
 		outputLog = newOutputFolder + "/parameters.log"
-		os.system("echo 'fastx_trimmer: Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(intTrimFwd, intTrimRev, outputLog))
+		os.system("echo 'singularity exec my_fastx_toolkit.sif fastx_trimmer: Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(intTrimFwd, intTrimRev, outputLog))
 		logger.info("reverse (R2) fastq file trim complete")
 
 	os.system("rm -v {}".format(gunzipForward))
