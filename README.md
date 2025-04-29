@@ -22,7 +22,7 @@ were employed in read-healing analysis in Wagner et al. (2021) PeerJ. 9:e12446
 
 ## Examples for Preprocessing of Illumina NGS Reads
 ### Vignette Ia. 3-prime trim for forward and reverse reads 
-##### Trim 3' ends of forward and reverse reads by 5 and 10 base pair positions, respectively:
+##### Trim 3' ends of forward and reverse reads by 5 and 10 bp, respectively:
 
 ```python fastxTrimmer_R1andR2.py ExampleData/Bacterial/Campy_D5480_R1_001.fastq ExampleData/Bacterial/Campy_D5480_R2_001.fastq --trimF 5 --trimR 10 --outDir TrimByPython/```
 
@@ -33,6 +33,9 @@ were employed in read-healing analysis in Wagner et al. (2021) PeerJ. 9:e12446
 * trim reverse reads by 20 bp for PHRED qual. < 29.00 (Q30 < 60%)
 
 ### Vignette Ib. 5-prime and 3-prime trim for forward and reverse reads 
+##### Trim 5' ends of forward and reverse reads by 4 bp and trim 3' ends of forward and reverse reads by 5 bp
+
+```python fastxTrimmer_R1andR2.py ExampleData/Bacterial/Campy_D5480_R1_001.fastq ExampleData/Bacterial/Campy_D5480_R2_001.fastq --trim_5prime Y --firstPos 3 --trimF 5 --trimR 5 --outDir TrimByPython/ ```
 
 ### Vignette II. 
 ##### Step 1. Remove reads < 40 bp and/or containing > 0 ambiguous nucleotides:

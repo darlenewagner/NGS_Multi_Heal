@@ -60,7 +60,7 @@ parser.add_argument('--trimF', '-t1', required=True, type=bandwidth_type, help="
 parser.add_argument('--trimR', '-t2', required=True, type=bandwidth_type, help="Trim 0 to 30 bp from R2 reads.")
 
 parser.add_argument('--trim_5prime', default='N', choices=['Y', 'N'], help="Trim 1 to 3 bp from 5-from of both R1 and R2 reads.")
-parser.add_argument('--firstPos', type=int, default=1, choices=range(1,3), help="Number of 5-prime positions to trim.")
+parser.add_argument('--firstPos', type=int, default=1, choices=range(1,4), help="Number of 5-prime positions to trim.")
 
 parser.add_argument('forward', type=ext_check('.fastq', 'fastq.gz', 'fq', 'fq.gz', argparse.FileType('r')))
 parser.add_argument('reverse', type=ext_check('.fastq', 'fastq.gz', 'fq', 'fq.gz', argparse.FileType('r')))
@@ -71,7 +71,6 @@ parser.add_argument('--outDir', '-D', type=readable_dir, required=True, action='
 parser.add_argument('--clean_output', '-clean', default='Y', choices=['Y','N'], help="Delete fail and singleton files: Y or N (use 'N' when additional processing downstream needed)")
 ## force overwrite of previous output folder
 parser.add_argument('--force', default='N', choices=['Y','N'], help="Overwrite previous output from same filename: Y or N")
-
 
 args = parser.parse_args()
 
