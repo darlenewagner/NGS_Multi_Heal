@@ -168,9 +168,9 @@ if(re.search(r'\.f(ast)?q$', forward, flags=re.IGNORECASE) and re.search(r'\.f(a
 		logger.info("forward (R1) fastq 3-prime trim complete")
 		os.system("singularity exec my_fastx_toolkit.sif fastx_trimmer -Q33 -t {} -i {} -z -o {}".format(intTrimRev, interReverse, outputReverse))
 		logger.info("reverse (R2) fastq 3-prime trim complete")
-                #if(args.clean_output == 'Y'):
-		#os.system("rm -v {}".format(interForward))
-		#os.system("rm -v {}".format(interReverse))
+		if(args.clean_output == 'Y'):
+			os.system("rm -v {}".format(interForward))
+			os.system("rm -v {}".format(interReverse))
                 
 		outputLog = newOutputFolder + "/parameters.log"
 		os.system("echo 'singularity exec my_fastx_toolkit.sif fastx_trimmer: All reads trimmed {} bp at 5-prime; Forward reads trimmed {} bp at 3-prime and reverse reads trimmed {} bp at 3-prime' > {}".format(int5prime, intTrimFwd, intTrimRev, outputLog))
