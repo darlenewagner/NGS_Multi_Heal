@@ -20,6 +20,14 @@ were employed in read-healing analysis in Wagner et al. (2021) PeerJ. 9:e12446
 * prinseq 1.20.X: (https://)
 * NGS_Plot_Widgets (https://github.com/darlenewagner/NGS_Plot_Widgets)
 
+## Installation:
+
+`cd NGS_Multi_Heal`
+
+`./singularityLocalSetup.sh`
+
+`tar xvzf ExampleData.tar.gz`
+
 ## Examples for Preprocessing of Illumina NGS Reads
 ### Vignette Ia. 3-prime trim for forward and reverse reads 
 ##### Trim 3' ends of forward and reverse reads by 5 and 10 bp, respectively:
